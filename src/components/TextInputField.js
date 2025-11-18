@@ -17,7 +17,7 @@ const TextInputField = ({
 
   return (
     <View style={styles.container}>
-      {label && <Text style={[styles.label, { color: theme.text }]}>{label}</Text>}
+      {label ? <Text style={[styles.label, { color: theme.text }]}>{label}</Text> : null}
       <TextInput
         style={[
           styles.input,
@@ -35,7 +35,7 @@ const TextInputField = ({
         keyboardType={keyboardType}
         editable={editable}
       />
-      {error && <Text style={[styles.error, { color: theme.error }]}>{error}</Text>}
+      {error ? <Text style={[styles.error, { color: theme.error }]}>{error}</Text> : null}
     </View>
   );
 };

@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 5,
+    boxShadow: '0 2px 3px rgba(0, 0, 0, 0.25)',
   },
   content: {
     paddingHorizontal: 16,

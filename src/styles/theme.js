@@ -38,5 +38,6 @@ export const commonStyles = {
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    boxShadow: '0 2px 3.84px rgba(0, 0, 0, 0.25)',
   },
 };

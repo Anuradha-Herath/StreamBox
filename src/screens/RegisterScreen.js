@@ -137,7 +137,7 @@ const RegisterScreen = ({ navigation, isDarkMode }) => {
 
           <View style={styles.footerSection}>
             <Text style={[styles.footerText, { color: theme.textSecondary }]}>
-              Already have an account?{' '}
+              Already have an account?
             </Text>
             <Button
               isDarkMode={isDarkMode}
