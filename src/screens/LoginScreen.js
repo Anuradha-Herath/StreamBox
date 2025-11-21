@@ -2,13 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Button from '../components/Button';
@@ -29,8 +29,8 @@ const LoginScreen = ({ navigation, isDarkMode }) => {
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: '',
+      email: 'emilys', // DummyJSON test user
+      password: 'emilyspass', // DummyJSON test password
     },
     validationSchema: loginValidationSchema,
     onSubmit: handleLogin,
@@ -115,12 +115,12 @@ const LoginScreen = ({ navigation, isDarkMode }) => {
         <View style={styles.formSection}>
           <TextInputField
             isDarkMode={isDarkMode}
-            label="Email"
-            placeholder="Enter your email"
+            label="Username or Email"
+            placeholder="Enter username (e.g., emilys)"
             value={formik.values.email}
             onChangeText={formik.handleChange('email')}
             onBlur={formik.handleBlur('email')}
-            keyboardType="email-address"
+            keyboardType="default"
             autoCapitalize="none"
             editable={!loading}
             error={formik.touched.email ? formik.errors.email : ''}
@@ -170,6 +170,15 @@ const LoginScreen = ({ navigation, isDarkMode }) => {
               size="small"
               onPress={() => navigation.navigate('Register')}
             />
+          </View>
+
+          <View style={[styles.demoCreds, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Text style={[styles.demoTitle, { color: theme.text }]}>📝 Test Credentials (DummyJSON):</Text>
+            <Text style={[styles.demoText, { color: theme.textSecondary }]}>Username: emilys</Text>
+            <Text style={[styles.demoText, { color: theme.textSecondary }]}>Password: emilyspass</Text>
+            <Text style={[styles.demoText, { color: theme.textSecondary, fontSize: 11, marginTop: 8 }]}>
+              More users available at dummyjson.com/users
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -233,6 +242,21 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
+  },
+  demoCreds: {
+    marginTop: 20,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  demoTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  demoText: {
+    fontSize: 12,
+    marginVertical: 2,
   },
 });
 

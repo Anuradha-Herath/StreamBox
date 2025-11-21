@@ -61,8 +61,14 @@ export const validatePasswordStrength = (password) => {
 // ==================== VALIDATION SCHEMAS ====================
 export const loginValidationSchema = Yup.object({
   email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required')
+    .test('email-or-username', 'Invalid email or username', function(value) {
+      if (!value) return false;
+      // Accept valid email OR username (alphanumeric, underscore, hyphen)
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      const isUsername = /^[a-zA-Z0-9_-]+$/.test(value);
+      return isEmail || isUsername;
+    })
+    .required('Username or email is required')
     .trim(),
   password: Yup.string()
     .min(6, 'Password must be at least 6 characters')

@@ -3,11 +3,14 @@ import axios from 'axios';
 import { DUMMY_API_BASE_URL, STORAGE_KEYS } from '../utils/constants';
 
 // ==================== CONFIGURATION ====================
-// Replace this with your real backend API endpoint
-// Example: 'https://your-backend.com/api'
-const BACKEND_API_URL = process.env.REACT_APP_API_URL || DUMMY_API_BASE_URL;
+// Using DummyJSON API (https://dummyjson.com)
+// Test Credentials:
+//   Username: emilys, Password: emilyspass
+//   Username: michaelw, Password: michaelwpass
+//   ... and many more available at https://dummyjson.com/users
+const BACKEND_API_URL = DUMMY_API_BASE_URL;
 
-// Create axios instance with real backend
+// Create axios instance for DummyJSON API
 const apiClient = axios.create({
   baseURL: BACKEND_API_URL,
   timeout: 15000,
@@ -32,7 +35,7 @@ const processQueue = (error, token = null) => {
 };
 
 // ==================== REQUEST INTERCEPTOR ====================
-// Automatically attach token to all requests
+// Automatically attach access token to all requests
 apiClient.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
@@ -75,26 +78,26 @@ apiClient.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        // Call refresh token endpoint on your backend
+        // Call DummyJSON refresh token endpoint
         const response = await axios.post(
           `${BACKEND_API_URL}/auth/refresh`,
-          { refreshToken },
+          { refreshToken, expiresInMins: 30 },
           { timeout: 10000 }
         );
 
-        const { token, refreshToken: newRefreshToken } = response.data;
+        const { accessToken, refreshToken: newRefreshToken } = response.data;
 
         // Save new tokens
-        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
         if (newRefreshToken) {
           await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
         }
 
         // Update authorization header
-        originalRequest.headers.Authorization = `Bearer ${token}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         
         // Process queued requests
-        processQueue(null, token);
+        processQueue(null, accessToken);
         
         // Retry original request
         return apiClient(originalRequest);
@@ -119,125 +122,143 @@ apiClient.interceptors.response.use(
 );
 
 // ==================== AUTHENTICATION SERVICE ====================
+/**
+ * Authentication service using DummyJSON API
+ * 
+ * Test Users Available:
+ * - emilys / emilyspass
+ * - michaelw / michaelwpass
+ * - harryp / harryppass
+ * And many more: https://dummyjson.com/users
+ */
 export const authService = {
   /**
-   * Login with email and password
-   * Backend should return: { token, refreshToken, user }
+   * Login with username and password (DummyJSON expects username, not email)
+   * DummyJSON returns: { accessToken, refreshToken, id, username, email, firstName, lastName, ... }
    */
   login: async (email, password) => {
     try {
+      // DummyJSON login endpoint expects 'username' parameter
+      // We use email as username (or could use actual username)
       const response = await apiClient.post('/auth/login', {
-        email,
-        password,
+        username: email, // DummyJSON uses 'username' field
+        password: password,
+        expiresInMins: 30, // Optional: set token expiration
       });
 
-      const { token, refreshToken, user } = response.data;
+      const { accessToken, refreshToken, id, username, email: userEmail, firstName, lastName } = response.data;
 
       // Save tokens
-      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, accessToken);
       if (refreshToken) {
         await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
       }
 
       return {
-        token,
+        token: accessToken,
         refreshToken,
-        user,
+        user: {
+          id,
+          username: username || email,
+          email: userEmail || email,
+          firstName: firstName || username || 'User',
+          lastName: lastName || '',
+          avatar: null,
+        },
       };
     } catch (error) {
       const message = error.response?.data?.message || error.message || 'Login failed';
       const apiError = new Error(message);
       apiError.code = error.response?.data?.code || 'LOGIN_ERROR';
-      apiError.errors = error.response?.data?.errors; // Field-specific errors
+      apiError.errors = error.response?.data?.errors;
       throw apiError;
     }
   },
 
   /**
    * Register new user
-   * Backend should return: { token, refreshToken, user }
+   * Note: DummyJSON doesn't have a real register endpoint for demo purposes
+   * This is a mock implementation - for production, use a real backend
    */
   register: async (username, email, password) => {
     try {
-      const response = await apiClient.post('/auth/register', {
+      // DummyJSON doesn't have a real registration endpoint
+      // This is a mock response for demo purposes
+      const mockUser = {
+        id: Math.floor(Math.random() * 10000),
         username,
         email,
-        password,
-      });
+        firstName: username.split(' ')[0] || username,
+        lastName: username.split(' ')[1] || '',
+      };
 
-      const { token, refreshToken, user } = response.data;
+      // Create mock tokens (for demo only - real backend would generate these)
+      const mockAccessToken = `mock-access-token-${Date.now()}`;
+      const mockRefreshToken = `mock-refresh-token-${Date.now()}`;
 
-      // Save tokens
-      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
-      if (refreshToken) {
-        await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-      }
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, mockAccessToken);
+      await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, mockRefreshToken);
 
       return {
-        token,
-        refreshToken,
-        user,
+        token: mockAccessToken,
+        refreshToken: mockRefreshToken,
+        user: mockUser,
       };
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Registration failed';
+      const message = error.message || 'Registration failed';
       const apiError = new Error(message);
-      apiError.code = error.response?.data?.code || 'REGISTER_ERROR';
-      apiError.errors = error.response?.data?.errors; // Field-specific errors
+      apiError.code = 'REGISTER_ERROR';
       throw apiError;
     }
   },
 
   /**
-   * Verify email (optional - for email confirmation flow)
+   * Get current authenticated user profile
+   * Uses the access token from Authorization header
    */
-  verifyEmail: async (token) => {
+  getProfile: async () => {
     try {
-      const response = await apiClient.post('/auth/verify-email', { token });
-      return response.data;
+      const response = await apiClient.get('/auth/me');
+      return {
+        id: response.data.id,
+        username: response.data.username,
+        email: response.data.email,
+        firstName: response.data.firstName,
+        lastName: response.data.lastName,
+        avatar: response.data.image || null,
+      };
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Email verification failed');
+      console.error('Get profile error:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'Failed to fetch profile');
     }
   },
 
   /**
-   * Request password reset
+   * Update user profile
+   * Note: DummyJSON may not support profile updates in demo mode
    */
-  requestPasswordReset: async (email) => {
+  updateProfile: async (userData) => {
     try {
-      const response = await apiClient.post('/auth/forgot-password', { email });
+      const response = await apiClient.put(`/users/${userData.id}`, userData);
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Password reset request failed');
-    }
-  },
-
-  /**
-   * Reset password with token
-   */
-  resetPassword: async (token, newPassword) => {
-    try {
-      const response = await apiClient.post('/auth/reset-password', {
-        token,
-        newPassword,
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Password reset failed');
+      throw new Error(error.response?.data?.message || 'Failed to update profile');
     }
   },
 
   /**
    * Logout user
+   * Clears tokens from local storage
    */
   logout: async () => {
     try {
-      // Call logout endpoint to invalidate token on backend
-      await apiClient.post('/auth/logout');
+      // DummyJSON doesn't have a logout endpoint, so we just clear local tokens
+      await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      await AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
     } catch (error) {
-      console.warn('Logout API call failed:', error.message);
-      // Continue with local logout even if API call fails
-    } finally {
-      // Clear local storage
+      console.warn('Logout failed:', error.message);
+      // Continue with logout even if there's an error
       await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       await AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
       await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
@@ -245,27 +266,24 @@ export const authService = {
   },
 
   /**
-   * Get current user profile
+   * Verify email (Optional - DummyJSON doesn't support this)
    */
-  getProfile: async () => {
-    try {
-      const response = await apiClient.get('/auth/profile');
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch profile');
-    }
+  verifyEmail: async (token) => {
+    throw new Error('Email verification not available with DummyJSON');
   },
 
   /**
-   * Update user profile
+   * Request password reset (Optional - DummyJSON doesn't support this)
    */
-  updateProfile: async (userData) => {
-    try {
-      const response = await apiClient.put('/auth/profile', userData);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to update profile');
-    }
+  requestPasswordReset: async (email) => {
+    throw new Error('Password reset not available with DummyJSON');
+  },
+
+  /**
+   * Reset password (Optional - DummyJSON doesn't support this)
+   */
+  resetPassword: async (token, newPassword) => {
+    throw new Error('Password reset not available with DummyJSON');
   },
 };
 
