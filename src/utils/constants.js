@@ -8,6 +8,7 @@ export const DUMMY_API_BASE_URL = 'https://dummyjson.com';
 
 export const STORAGE_KEYS = {
   AUTH_TOKEN: '@streambox_auth_token',
+  REFRESH_TOKEN: '@streambox_refresh_token',
   USER_DATA: '@streambox_user_data',
   FAVORITES: '@streambox_favorites',
   THEME_MODE: '@streambox_theme_mode',

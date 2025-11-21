@@ -1,14 +1,38 @@
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { DUMMY_API_BASE_URL, STORAGE_KEYS } from '../utils/constants';
 
-// Create axios instance for dummy API
+// ==================== CONFIGURATION ====================
+// Replace this with your real backend API endpoint
+// Example: 'https://your-backend.com/api'
+const BACKEND_API_URL = process.env.REACT_APP_API_URL || DUMMY_API_BASE_URL;
+
+// Create axios instance with real backend
 const apiClient = axios.create({
-  baseURL: DUMMY_API_BASE_URL,
-  timeout: 10000,
+  baseURL: BACKEND_API_URL,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Add request interceptor
+// Track token refresh to prevent multiple simultaneous refresh requests
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// ==================== REQUEST INTERCEPTOR ====================
+// Automatically attach token to all requests
 apiClient.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
@@ -20,44 +44,227 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Authentication Service
+// ==================== RESPONSE INTERCEPTOR ====================
+// Handle token refresh on 401 errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If error is 401 and we haven't already tried to refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // Queue request while token is being refreshed
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return apiClient(originalRequest);
+          })
+          .catch(err => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = await AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+        
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        // Call refresh token endpoint on your backend
+        const response = await axios.post(
+          `${BACKEND_API_URL}/auth/refresh`,
+          { refreshToken },
+          { timeout: 10000 }
+        );
+
+        const { token, refreshToken: newRefreshToken } = response.data;
+
+        // Save new tokens
+        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+        if (newRefreshToken) {
+          await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken);
+        }
+
+        // Update authorization header
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        
+        // Process queued requests
+        processQueue(null, token);
+        
+        // Retry original request
+        return apiClient(originalRequest);
+      } catch (err) {
+        // Clear tokens if refresh fails
+        await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+        await AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+        
+        processQueue(err, null);
+        
+        // Redirect to login by throwing specific error
+        const error = new Error('Session expired. Please login again.');
+        error.code = 'SESSION_EXPIRED';
+        throw error;
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// ==================== AUTHENTICATION SERVICE ====================
 export const authService = {
-  // Dummy login - in production, send to real backend
+  /**
+   * Login with email and password
+   * Backend should return: { token, refreshToken, user }
+   */
   login: async (email, password) => {
     try {
-      // Simulate API call with dummy data
       const response = await apiClient.post('/auth/login', {
-        username: email,
-        password: password,
+        email,
+        password,
       });
-      return response.data;
+
+      const { token, refreshToken, user } = response.data;
+
+      // Save tokens
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      if (refreshToken) {
+        await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      }
+
+      return {
+        token,
+        refreshToken,
+        user,
+      };
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+      const message = error.response?.data?.message || error.message || 'Login failed';
+      const apiError = new Error(message);
+      apiError.code = error.response?.data?.code || 'LOGIN_ERROR';
+      apiError.errors = error.response?.data?.errors; // Field-specific errors
+      throw apiError;
     }
   },
 
-  // Dummy register
+  /**
+   * Register new user
+   * Backend should return: { token, refreshToken, user }
+   */
   register: async (username, email, password) => {
     try {
-      const response = await apiClient.post('/users/add', {
-        firstName: username.split(' ')[0] || username,
-        lastName: username.split(' ')[1] || '',
-        email: email,
-        password: password,
+      const response = await apiClient.post('/auth/register', {
+        username,
+        email,
+        password,
       });
-      return response.data;
+
+      const { token, refreshToken, user } = response.data;
+
+      // Save tokens
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      if (refreshToken) {
+        await AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+      }
+
+      return {
+        token,
+        refreshToken,
+        user,
+      };
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      const message = error.response?.data?.message || error.message || 'Registration failed';
+      const apiError = new Error(message);
+      apiError.code = error.response?.data?.code || 'REGISTER_ERROR';
+      apiError.errors = error.response?.data?.errors; // Field-specific errors
+      throw apiError;
     }
   },
 
+  /**
+   * Verify email (optional - for email confirmation flow)
+   */
+  verifyEmail: async (token) => {
+    try {
+      const response = await apiClient.post('/auth/verify-email', { token });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Email verification failed');
+    }
+  },
+
+  /**
+   * Request password reset
+   */
+  requestPasswordReset: async (email) => {
+    try {
+      const response = await apiClient.post('/auth/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Password reset request failed');
+    }
+  },
+
+  /**
+   * Reset password with token
+   */
+  resetPassword: async (token, newPassword) => {
+    try {
+      const response = await apiClient.post('/auth/reset-password', {
+        token,
+        newPassword,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Password reset failed');
+    }
+  },
+
+  /**
+   * Logout user
+   */
   logout: async () => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-      await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
-      return true;
+      // Call logout endpoint to invalidate token on backend
+      await apiClient.post('/auth/logout');
     } catch (error) {
-      throw new Error('Logout failed');
+      console.warn('Logout API call failed:', error.message);
+      // Continue with local logout even if API call fails
+    } finally {
+      // Clear local storage
+      await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      await AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    }
+  },
+
+  /**
+   * Get current user profile
+   */
+  getProfile: async () => {
+    try {
+      const response = await apiClient.get('/auth/profile');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch profile');
+    }
+  },
+
+  /**
+   * Update user profile
+   */
+  updateProfile: async (userData) => {
+    try {
+      const response = await apiClient.put('/auth/profile', userData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update profile');
     }
   },
 };
