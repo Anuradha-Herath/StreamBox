@@ -1,14 +1,12 @@
-import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
   ScrollView,
-  Alert,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
-import { useSelector } from 'react-redux';
 import { Mail, User } from 'react-native-feather';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSelector } from 'react-redux';
 import Button from '../components/Button';
 import { getTheme } from '../styles/theme';
 
@@ -114,14 +112,14 @@ const ProfileScreen = ({ navigation, isDarkMode }) => {
           <Button
             isDarkMode={isDarkMode}
             title="View Favorites"
-            onPress={() => navigation.navigate('Favorites')}
+            onPress={() => navigation.navigate('FavoritesTab')}
             style={styles.button}
           />
           <Button
             isDarkMode={isDarkMode}
             title="Go to Settings"
             variant="secondary"
-            onPress={() => navigation.navigate('Settings')}
+            onPress={() => navigation.navigate('SettingsTab')}
             style={styles.button}
           />
         </View>

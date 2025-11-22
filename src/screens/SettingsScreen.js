@@ -1,21 +1,19 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Alert,
-  Switch,
-} from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LogOut } from 'react-native-feather';
+import {
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import Button from '../components/Button';
 import { logout } from '../redux/authSlice';
 import { toggleTheme } from '../redux/themeSlice';
-import { STORAGE_KEYS } from '../utils/constants';
-import Button from '../components/Button';
 import { getTheme } from '../styles/theme';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const SettingsScreen = ({ navigation, isDarkMode }) => {
   const dispatch = useDispatch();

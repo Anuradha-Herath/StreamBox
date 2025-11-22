@@ -1,20 +1,20 @@
-import React, { useEffect } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  SafeAreaView,
-  Alert,
-} from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
+import {
+    Alert,
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import Header from '../components/Header';
 import MovieCard from '../components/MovieCard';
-import { setFavorites, removeFavorite } from '../redux/favoritesSlice';
+import { removeFavorite, setFavorites } from '../redux/favoritesSlice';
 import { toggleTheme } from '../redux/themeSlice';
-import { STORAGE_KEYS } from '../utils/constants';
 import { getTheme } from '../styles/theme';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const FavoritesScreen = ({ navigation, isDarkMode }) => {
   const dispatch = useDispatch();
@@ -55,9 +55,9 @@ const FavoritesScreen = ({ navigation, isDarkMode }) => {
 
   const handleMenuPress = () => {
     Alert.alert('Menu', 'Navigation menu options', [
-      { text: 'Home', onPress: () => navigation.navigate('Home') },
-      { text: 'Profile', onPress: () => navigation.navigate('Profile') },
-      { text: 'Settings', onPress: () => navigation.navigate('Settings') },
+      { text: 'Home', onPress: () => navigation.navigate('HomeTab') },
+      { text: 'Profile', onPress: () => navigation.navigate('ProfileTab') },
+      { text: 'Settings', onPress: () => navigation.navigate('SettingsTab') },
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
