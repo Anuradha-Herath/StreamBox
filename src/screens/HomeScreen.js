@@ -145,7 +145,7 @@ const HomeScreen = ({ navigation, isDarkMode }) => {
         isDarkMode={isDarkMode}
         onMenuPress={handleMenuPress}
         onThemeToggle={handleThemeToggle}
-        username={user?.firstName || user?.username}
+        title="Home"
       />
 
       <SearchBar

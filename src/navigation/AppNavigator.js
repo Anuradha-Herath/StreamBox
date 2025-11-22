@@ -1,10 +1,9 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, Heart, User, Settings } from 'react-native-feather';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Heart, Home, Settings, User } from 'react-native-feather';
+import FavoritesScreen from '../screens/FavoritesScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MovieDetailsScreen from '../screens/MovieDetailsScreen';
-import FavoritesScreen from '../screens/FavoritesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { getTheme } from '../styles/theme';
@@ -112,51 +111,51 @@ const AppNavigator = ({ isDarkMode }) => {
     >
       <Tab.Screen
         name="HomeTab"
-        component={HomeStackNavigator}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
             <Home width={size} height={size} stroke={color} />
           ),
         }}
-        initialParams={{ isDarkMode }}
-      />
+      >
+        {() => <HomeStackNavigator isDarkMode={isDarkMode} />}
+      </Tab.Screen>
 
       <Tab.Screen
         name="FavoritesTab"
-        component={FavoritesStackNavigator}
         options={{
           tabBarLabel: 'Favorites',
           tabBarIcon: ({ color, size }) => (
             <Heart width={size} height={size} stroke={color} />
           ),
         }}
-        initialParams={{ isDarkMode }}
-      />
+      >
+        {() => <FavoritesStackNavigator isDarkMode={isDarkMode} />}
+      </Tab.Screen>
 
       <Tab.Screen
         name="ProfileTab"
-        component={ProfileStackNavigator}
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => (
             <User width={size} height={size} stroke={color} />
           ),
         }}
-        initialParams={{ isDarkMode }}
-      />
+      >
+        {() => <ProfileStackNavigator isDarkMode={isDarkMode} />}
+      </Tab.Screen>
 
       <Tab.Screen
         name="SettingsTab"
-        component={SettingsStackNavigator}
         options={{
           tabBarLabel: 'Settings',
           tabBarIcon: ({ color, size }) => (
             <Settings width={size} height={size} stroke={color} />
           ),
         }}
-        initialParams={{ isDarkMode }}
-      />
+      >
+        {() => <SettingsStackNavigator isDarkMode={isDarkMode} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

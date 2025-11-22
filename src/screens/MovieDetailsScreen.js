@@ -86,7 +86,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: POSTER_BASE_URL + displayMovie.poster_path }} style={styles.poster} />
+        {displayMovie.poster_path && (
+          <Image source={{ uri: POSTER_BASE_URL + displayMovie.poster_path }} style={styles.poster} />
+        )}
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
@@ -109,25 +111,31 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
         </View>
 
         <View style={styles.content}>
-          <Text style={[styles.title, { color: theme.text }]}>{displayMovie.title}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{displayMovie.title || 'Untitled'}</Text>
 
-          <View style={styles.ratingContainer}>
-            <Text style={[styles.rating, { color: theme.accent }]}>
-              ⭐ {displayMovie.vote_average?.toFixed(1) || 'N/A'} / 10
-            </Text>
-            {displayMovie.release_date && (
-              <Text style={[styles.releaseDate, { color: theme.textSecondary }]}>
-                📅 {displayMovie.release_date}
+          {(displayMovie.vote_average != null || displayMovie.release_date) && (
+            <View style={styles.ratingContainer}>
+              {displayMovie.vote_average != null && (
+                <Text style={[styles.rating, { color: theme.accent }]}>
+                  ⭐ {displayMovie.vote_average.toFixed(1)} / 10
+                </Text>
+              )}
+              {displayMovie.release_date && (
+                <Text style={[styles.releaseDate, { color: theme.textSecondary }]}>
+                  📅 {displayMovie.release_date}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {displayMovie.overview && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Overview</Text>
+              <Text style={[styles.overview, { color: theme.textSecondary }]}>
+                {displayMovie.overview}
               </Text>
-            )}
-          </View>
-
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Overview</Text>
-            <Text style={[styles.overview, { color: theme.textSecondary }]}>
-              {displayMovie.overview}
-            </Text>
-          </View>
+            </View>
+          )}
 
           {displayMovie.genres && displayMovie.genres.length > 0 && (
             <View style={styles.section}>
@@ -141,7 +149,7 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                       { backgroundColor: theme.primary },
                     ]}
                   >
-                    <Text style={styles.genreText}>{genre.name}</Text>
+                    <Text style={styles.genreText}>{genre.name || genre}</Text>
                   </View>
                 ))}
               </View>
@@ -187,10 +195,10 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
               {displayMovie.credits.cast.slice(0, 3).map((actor, index) => (
                 <View key={index} style={styles.castMember}>
                   <Text style={[styles.castName, { color: theme.text }]}>
-                    {actor.name}
+                    {actor.name || actor}
                   </Text>
                   <Text style={[styles.castRole, { color: theme.textSecondary }]}>
-                    as {actor.character}
+                    as {actor.character || ''}
                   </Text>
                 </View>
               ))}
@@ -260,7 +268,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 5,
-    boxShadow: '0 2px 3px rgba(0, 0, 0, 0.25)',
   },
   content: {
     paddingHorizontal: 16,
