@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Heart } from 'react-native-feather';
 import { getTheme } from '../styles/theme';
+import { POSTER_BASE_URL } from '../utils/constants';
 
 const MovieCard = React.memo(({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) => {
   const theme = getTheme(isDarkMode);
@@ -13,7 +14,7 @@ const MovieCard = React.memo(({ movie, isDarkMode, onPress, onFavoritePress, isF
       activeOpacity={0.9}
     >
       <Image
-        source={{ uri: movie.poster_path }}
+        source={{ uri: POSTER_BASE_URL + movie.poster_path }}
         style={styles.poster}
       />
       <View style={styles.content}>
