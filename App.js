@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import store from './src/redux/store';
+import { useEffect, useState } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
 import RootNavigator from './src/navigation/RootNavigator';
+import store from './src/redux/store';
 import { STORAGE_KEYS } from './src/utils/constants';
 
 export default function App() {
@@ -31,7 +32,9 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <RootNavigator isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <SafeAreaProvider>
+        <RootNavigator isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      </SafeAreaProvider>
     </Provider>
   );
 }

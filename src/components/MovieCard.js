@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Heart } from 'react-native-feather';
 import { getTheme } from '../styles/theme';
 
-const MovieCard = ({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) => {
+const MovieCard = React.memo(({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) => {
   const theme = getTheme(isDarkMode);
 
   return (
@@ -42,7 +42,7 @@ const MovieCard = ({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) 
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -83,5 +83,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
 });
+
+MovieCard.displayName = 'MovieCard';
 
 export default MovieCard;
