@@ -1,10 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Menu, Moon, Sun } from 'react-native-feather';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LogOut, Menu, Moon, Sun } from 'react-native-feather';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../redux/authSlice';
 import { getTheme } from '../styles/theme';
 
-const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, username }) => {
+const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.auth);
   const theme = getTheme(isDarkMode);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  const displayName = user?.firstName || user?.username || 'User';
+  const initials = displayName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.primary }]}>
@@ -14,12 +29,25 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, username }) => 
         </TouchableOpacity>
         <Text style={styles.title}>{title || 'StreamBox'}</Text>
       </View>
+
       <View style={styles.rightSection}>
-        {username && (
+        {user && (
+          <TouchableOpacity
+            style={[styles.userAvatar, { backgroundColor: theme.secondary }]}
+            onPress={() => {
+              // TODO: Navigate to profile screen
+            }}
+          >
+            <Text style={styles.avatarText}>{initials}</Text>
+          </TouchableOpacity>
+        )}
+
+        {user && (
           <Text style={styles.username} numberOfLines={1}>
-            {username}
+            {displayName}
           </Text>
         )}
+
         <TouchableOpacity onPress={onThemeToggle} style={styles.iconButton}>
           {isDarkMode ? (
             <Sun width={22} height={22} stroke="#FFF" />
@@ -27,6 +55,12 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, username }) => 
             <Moon width={22} height={22} stroke="#FFF" />
           )}
         </TouchableOpacity>
+
+        {user && (
+          <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+            <LogOut width={22} height={22} stroke="#FFF" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -38,8 +72,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingVertical: 12,
     paddingTop: 16,
   },
   leftSection: {
@@ -60,9 +93,22 @@ const styles = StyleSheet.create({
   },
   username: {
     color: '#FFF',
-    fontSize: 12,
-    marginRight: 12,
+    fontSize: 13,
+    marginHorizontal: 8,
     maxWidth: 100,
+    fontWeight: '500',
+  },
+  userAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '700',
   },
   iconButton: {
     padding: 8,

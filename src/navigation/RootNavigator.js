@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../redux/authSlice';
-import { setTheme } from '../redux/themeSlice';
-import { setFavorites } from '../redux/favoritesSlice';
-import { STORAGE_KEYS } from '../utils/constants';
-import AuthNavigator from './AuthNavigator';
-import AppNavigator from './AppNavigator';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { logout, setUser } from '../redux/authSlice';
+import { setFavorites } from '../redux/favoritesSlice';
+import { setTheme } from '../redux/themeSlice';
+import { authService } from '../services/api';
+import { STORAGE_KEYS } from '../utils/constants';
+import AppNavigator from './AppNavigator';
+import AuthNavigator from './AuthNavigator';
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,7 @@ const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(state => state.auth);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionError, setSessionError] = useState(null);
 
   useEffect(() => {
     bootstrapAsync();
@@ -30,9 +32,47 @@ const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
       const themeMode = await AsyncStorage.getItem(STORAGE_KEYS.THEME_MODE);
 
       if (token && userData) {
-        dispatch(setUser(JSON.parse(userData)));
+        try {
+          // Validate token by fetching user profile
+          // If token is expired, the API will attempt to refresh it
+          const profile = await authService.getProfile();
+          
+          const parsedUserData = JSON.parse(userData);
+          const updatedUserData = {
+            ...parsedUserData,
+            ...profile, // Merge with fresh profile data
+          };
+
+          dispatch(
+            setUser({
+              ...updatedUserData,
+              isAuthenticated: true,
+            })
+          );
+
+          // Update stored user data with fresh info
+          await AsyncStorage.setItem(
+            STORAGE_KEYS.USER_DATA,
+            JSON.stringify(updatedUserData)
+          );
+        } catch (error) {
+          // If profile fetch fails, check if it's a session error
+          if (error.code === 'SESSION_EXPIRED') {
+            // Clear tokens and logout
+            await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            await AsyncStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+            await AsyncStorage.removeItem(STORAGE_KEYS.USER_DATA);
+            dispatch(logout());
+            setSessionError('Session expired. Please login again.');
+          } else {
+            // For other errors, try to restore session anyway
+            const parsedUserData = JSON.parse(userData);
+            dispatch(setUser(parsedUserData));
+          }
+        }
       }
 
+      // Load theme preference
       if (themeMode) {
         const isDark = JSON.parse(themeMode);
         dispatch(setTheme(isDark));
@@ -46,10 +86,17 @@ const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
       }
     } catch (e) {
       console.error('Failed to restore session:', e);
+      setSessionError('Failed to load session. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleRetry = useCallback(() => {
+    setSessionError(null);
+    setIsLoading(true);
+    bootstrapAsync();
+  }, []);
 
   if (isLoading) {
     return <LoadingSpinner isDarkMode={isDarkMode} message="Loading..." />;

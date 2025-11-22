@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
 import {
-  View,
-  Text,
   Image,
   ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  SafeAreaView,
   Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { Heart, Share2, ArrowLeft } from 'react-native-feather';
+import { ArrowLeft, Heart, Share2 } from 'react-native-feather';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
+import Button from '../components/Button';
 import { addFavorite, removeFavorite } from '../redux/favoritesSlice';
 import { getTheme } from '../styles/theme';
-import Button from '../components/Button';
 
 const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
   const { movie } = route.params;

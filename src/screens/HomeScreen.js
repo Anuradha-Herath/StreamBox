@@ -1,25 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Alert,
-  SafeAreaView,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Header from '../components/Header';
-import MovieCard from '../components/MovieCard';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { useEffect, useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  StyleSheet
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import ErrorBanner from '../components/ErrorBanner';
+import Header from '../components/Header';
+import LoadingSpinner from '../components/LoadingSpinner';
+import MovieCard from '../components/MovieCard';
 import SearchBar from '../components/SearchBar';
-import { movieService } from '../services/api';
-import { fetchMoviesStart, fetchMoviesSuccess, fetchMoviesFailure } from '../redux/moviesSlice';
-import { setFavorites, addFavorite, removeFavorite } from '../redux/favoritesSlice';
-import { toggleTheme } from '../redux/themeSlice';
 import { logout } from '../redux/authSlice';
-import { STORAGE_KEYS } from '../utils/constants';
+import { addFavorite, removeFavorite, setFavorites } from '../redux/favoritesSlice';
+import { fetchMoviesFailure, fetchMoviesStart, fetchMoviesSuccess } from '../redux/moviesSlice';
+import { toggleTheme } from '../redux/themeSlice';
+import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
+import { STORAGE_KEYS } from '../utils/constants';
 
 const HomeScreen = ({ navigation, isDarkMode }) => {
   const dispatch = useDispatch();
@@ -103,9 +102,9 @@ const HomeScreen = ({ navigation, isDarkMode }) => {
 
   const handleMenuPress = () => {
     Alert.alert('Menu', 'Navigation menu options', [
-      { text: 'Profile', onPress: () => navigation.navigate('Profile') },
-      { text: 'Favorites', onPress: () => navigation.navigate('Favorites') },
-      { text: 'Settings', onPress: () => navigation.navigate('Settings') },
+      { text: 'Profile', onPress: () => navigation.navigate('ProfileTab') },
+      { text: 'Favorites', onPress: () => navigation.navigate('FavoritesTab') },
+      { text: 'Settings', onPress: () => navigation.navigate('SettingsTab') },
       { text: 'Logout', onPress: handleLogout },
       { text: 'Cancel', style: 'cancel' },
     ]);
