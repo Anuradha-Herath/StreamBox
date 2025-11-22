@@ -20,11 +20,12 @@ import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const HomeScreen = ({ navigation, isDarkMode }) => {
+const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { movies, isLoading, error } = useSelector(state => state.movies);
   const { favorites } = useSelector(state => state.favorites);
   const { user } = useSelector(state => state.auth);
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const theme = getTheme(isDarkMode);

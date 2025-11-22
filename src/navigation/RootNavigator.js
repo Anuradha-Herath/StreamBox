@@ -14,9 +14,10 @@ import AuthNavigator from './AuthNavigator';
 
 const Stack = createStackNavigator();
 
-const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
+const RootNavigator = () => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(state => state.auth);
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const [isLoading, setIsLoading] = useState(true);
   const [sessionError, setSessionError] = useState(null);
 
@@ -76,7 +77,6 @@ const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
       if (themeMode) {
         const isDark = JSON.parse(themeMode);
         dispatch(setTheme(isDark));
-        setIsDarkMode(isDark);
       }
 
       // Load favorites
@@ -108,7 +108,7 @@ const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
         {isAuthenticated ? (
           <Stack.Group screenOptions={{ animationEnabled: false }}>
             <Stack.Screen name="AppStack">
-              {() => <AppNavigator isDarkMode={isDarkMode} />}
+              {() => <AppNavigator />}
             </Stack.Screen>
           </Stack.Group>
         ) : (
@@ -122,7 +122,7 @@ const RootNavigator = ({ isDarkMode, setIsDarkMode }) => {
               name="AuthStack"
               options={{ animationTypeForReplace: false }}
             >
-              {() => <AuthNavigator isDarkMode={isDarkMode} />}
+              {() => <AuthNavigator />}
             </Stack.Screen>
           </Stack.Group>
         )}

@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,9 +15,10 @@ import { toggleTheme } from '../redux/themeSlice';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const SettingsScreen = ({ navigation, isDarkMode }) => {
+const SettingsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const theme = getTheme(isDarkMode);
 
   const handleLogout = async () => {

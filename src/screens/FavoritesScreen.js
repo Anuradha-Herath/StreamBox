@@ -1,11 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import {
-    Alert,
-    FlatList,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,9 +16,10 @@ import { toggleTheme } from '../redux/themeSlice';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
 
-const FavoritesScreen = ({ navigation, isDarkMode }) => {
+const FavoritesScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { favorites } = useSelector(state => state.favorites);
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const theme = getTheme(isDarkMode);
 
   useEffect(() => {

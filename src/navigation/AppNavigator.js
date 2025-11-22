@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Heart, Home, Settings, User } from 'react-native-feather';
+import { useSelector } from 'react-redux';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MovieDetailsScreen from '../screens/MovieDetailsScreen';
@@ -11,7 +12,8 @@ import { getTheme } from '../styles/theme';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const HomeStackNavigator = ({ isDarkMode }) => {
+const HomeStackNavigator = () => {
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   return (
     <Stack.Navigator
       screenOptions={{
@@ -34,7 +36,9 @@ const HomeStackNavigator = ({ isDarkMode }) => {
   );
 };
 
-const FavoritesStackNavigator = ({ isDarkMode }) => {
+const FavoritesStackNavigator = () => {
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -56,7 +60,9 @@ const FavoritesStackNavigator = ({ isDarkMode }) => {
   );
 };
 
-const ProfileStackNavigator = ({ isDarkMode }) => {
+const ProfileStackNavigator = () => {
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -70,7 +76,9 @@ const ProfileStackNavigator = ({ isDarkMode }) => {
   );
 };
 
-const SettingsStackNavigator = ({ isDarkMode }) => {
+const SettingsStackNavigator = () => {
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -84,7 +92,8 @@ const SettingsStackNavigator = ({ isDarkMode }) => {
   );
 };
 
-const AppNavigator = ({ isDarkMode }) => {
+const AppNavigator = () => {
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const theme = getTheme(isDarkMode);
 
   return (
@@ -118,7 +127,7 @@ const AppNavigator = ({ isDarkMode }) => {
           ),
         }}
       >
-        {() => <HomeStackNavigator isDarkMode={isDarkMode} />}
+        {() => <HomeStackNavigator />}
       </Tab.Screen>
 
       <Tab.Screen
@@ -130,7 +139,7 @@ const AppNavigator = ({ isDarkMode }) => {
           ),
         }}
       >
-        {() => <FavoritesStackNavigator isDarkMode={isDarkMode} />}
+        {() => <FavoritesStackNavigator />}
       </Tab.Screen>
 
       <Tab.Screen
@@ -142,7 +151,7 @@ const AppNavigator = ({ isDarkMode }) => {
           ),
         }}
       >
-        {() => <ProfileStackNavigator isDarkMode={isDarkMode} />}
+        {() => <ProfileStackNavigator />}
       </Tab.Screen>
 
       <Tab.Screen
@@ -154,7 +163,7 @@ const AppNavigator = ({ isDarkMode }) => {
           ),
         }}
       >
-        {() => <SettingsStackNavigator isDarkMode={isDarkMode} />}
+        {() => <SettingsStackNavigator />}
       </Tab.Screen>
     </Tab.Navigator>
   );

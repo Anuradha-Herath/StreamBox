@@ -2,15 +2,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '../components/Button';
 import ErrorBanner from '../components/ErrorBanner';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -20,13 +20,14 @@ import { authService } from '../services/api';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
 import {
-    getErrorMessage,
-    registerValidationSchema,
-    validatePasswordStrength,
+  getErrorMessage,
+  registerValidationSchema,
+  validatePasswordStrength,
 } from '../utils/validation';
 
-const RegisterScreen = ({ navigation, isDarkMode }) => {
+const RegisterScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [passwordStrength, setPasswordStrength] = useState(null);

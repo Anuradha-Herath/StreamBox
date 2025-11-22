@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from '../components/Button';
 import ErrorBanner from '../components/ErrorBanner';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -21,8 +21,9 @@ import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
 import { getErrorMessage, loginValidationSchema } from '../utils/validation';
 
-const LoginScreen = ({ navigation, isDarkMode }) => {
+const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const theme = getTheme(isDarkMode);

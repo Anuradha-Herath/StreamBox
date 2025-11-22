@@ -18,10 +18,11 @@ import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
 import { POSTER_BASE_URL } from '../utils/constants';
 
-const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
+const MovieDetailsScreen = ({ route, navigation }) => {
   const { movie } = route.params;
   const dispatch = useDispatch();
   const { favorites } = useSelector(state => state.favorites);
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const theme = getTheme(isDarkMode);
   const isFavorite = favorites.some(fav => fav.id === movie.id);
   const [fullMovie, setFullMovie] = useState(null);

@@ -10,9 +10,10 @@ import { useSelector } from 'react-redux';
 import Button from '../components/Button';
 import { getTheme } from '../styles/theme';
 
-const ProfileScreen = ({ navigation, isDarkMode }) => {
+const ProfileScreen = ({ navigation }) => {
   const { user } = useSelector(state => state.auth);
   const { favorites } = useSelector(state => state.favorites);
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const theme = getTheme(isDarkMode);
 
   return (
