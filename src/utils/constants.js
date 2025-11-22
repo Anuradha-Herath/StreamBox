@@ -1,5 +1,6 @@
 export const API_BASE_URL = 'https://api.themoviedb.org/3';
-export const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2YmY0ZDI0YzJiOTgyMzVmYzJlYjRhODM3ZDc5ZGQwYSIsInN1YiI6IjY3MzhhMWI4YzI0OTU1ZGFmYzk2OTk1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ALh6CbvZS_NVPg51HXFqGQBJ5cWsV9wMeYwv5F7VBNs';
+export const API_KEY = process.env.EXPO_PUBLIC_TMDB_ACCESS_TOKEN || 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2YmY0ZDI0YzJiOTgyMzVmYzJlYjRhODM3ZDc5ZGQwYSIsInN1YiI6IjY3MzhhMWI4YzI0OTU1ZGFmYzk2OTk1NyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ALh6CbvZS_NVPg51HXFqGQBJ5cWsV9wMeYwv5F7VBNs';
+export const TMDB_API_KEY = process.env.EXPO_PUBLIC_TMDB_API_KEY || '6bf4d24c2b98235fc2eb4a837d79dd0a';
 export const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w342';
 export const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
