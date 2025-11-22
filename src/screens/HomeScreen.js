@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -125,7 +125,7 @@ const HomeScreen = ({ navigation, isDarkMode }) => {
     await AsyncStorage.setItem(STORAGE_KEYS.THEME_MODE, JSON.stringify(!isDarkMode));
   };
 
-  const renderMovieItem = ({ item }) => (
+  const renderMovieItem = useCallback(({ item }) => (
     <MovieCard
       movie={item}
       isDarkMode={isDarkMode}
@@ -133,7 +133,7 @@ const HomeScreen = ({ navigation, isDarkMode }) => {
       onFavoritePress={() => handleFavoritePress(item)}
       isFavorite={favorites.some(fav => fav.id === item.id)}
     />
-  );
+  ), [isDarkMode, favorites, handleMoviePress, handleFavoritePress]);
 
   if (isLoading && movies.length === 0) {
     return <LoadingSpinner isDarkMode={isDarkMode} message="Loading movies..." />;
@@ -145,7 +145,7 @@ const HomeScreen = ({ navigation, isDarkMode }) => {
         isDarkMode={isDarkMode}
         onMenuPress={handleMenuPress}
         onThemeToggle={handleThemeToggle}
-        username={user?.firstName || user?.username}
+        title="Home"
       />
 
       <SearchBar

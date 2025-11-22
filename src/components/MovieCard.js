@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Heart } from 'react-native-feather';
 import { getTheme } from '../styles/theme';
+import { POSTER_BASE_URL } from '../utils/constants';
 
-const MovieCard = ({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) => {
+const MovieCard = React.memo(({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) => {
   const theme = getTheme(isDarkMode);
 
   return (
@@ -13,7 +14,7 @@ const MovieCard = ({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) 
       activeOpacity={0.9}
     >
       <Image
-        source={{ uri: movie.poster_path }}
+        source={{ uri: POSTER_BASE_URL + movie.poster_path }}
         style={styles.poster}
       />
       <View style={styles.content}>
@@ -42,7 +43,7 @@ const MovieCard = ({ movie, isDarkMode, onPress, onFavoritePress, isFavorite }) 
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -50,7 +51,10 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 12,
     overflow: 'hidden',
-    boxShadow: '0 2px 3.84px rgba(0, 0, 0, 0.25)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   poster: {
@@ -83,5 +87,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
 });
+
+MovieCard.displayName = 'MovieCard';
 
 export default MovieCard;

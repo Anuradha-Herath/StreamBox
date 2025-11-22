@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -11,8 +12,11 @@ import { ArrowLeft, Heart, Share2 } from 'react-native-feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '../components/Button';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { addFavorite, removeFavorite } from '../redux/favoritesSlice';
+import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
+import { POSTER_BASE_URL } from '../utils/constants';
 
 const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
   const { movie } = route.params;
@@ -20,6 +24,26 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
   const { favorites } = useSelector(state => state.favorites);
   const theme = getTheme(isDarkMode);
   const isFavorite = favorites.some(fav => fav.id === movie.id);
+  const [fullMovie, setFullMovie] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMovieDetails();
+  }, [movie.id]);
+
+  const fetchMovieDetails = async () => {
+    try {
+      setLoading(true);
+      const data = await movieService.getMovieDetails(movie.id);
+      setFullMovie(data);
+    } catch (error) {
+      console.error('Failed to fetch movie details:', error);
+      // Fallback to basic movie data
+      setFullMovie(movie);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFavoriteToggle = () => {
     if (isFavorite) {
@@ -40,6 +64,12 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
     }
   };
 
+  if (loading) {
+    return <LoadingSpinner isDarkMode={isDarkMode} message="Loading movie details..." />;
+  }
+
+  const displayMovie = fullMovie || movie;
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -56,7 +86,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Image source={{ uri: movie.poster_path }} style={styles.poster} />
+        {displayMovie.poster_path ? (
+          <Image source={{ uri: POSTER_BASE_URL + displayMovie.poster_path }} style={styles.poster} />
+        ) : null}
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
@@ -79,31 +111,37 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
         </View>
 
         <View style={styles.content}>
-          <Text style={[styles.title, { color: theme.text }]}>{movie.title}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{displayMovie.title || 'Untitled'}</Text>
 
-          <View style={styles.ratingContainer}>
-            <Text style={[styles.rating, { color: theme.accent }]}>
-              ⭐ {movie.vote_average?.toFixed(1) || 'N/A'} / 10
-            </Text>
-            {movie.release_date && (
-              <Text style={[styles.releaseDate, { color: theme.textSecondary }]}>
-                📅 {movie.release_date}
+          {(displayMovie.vote_average != null || displayMovie.release_date) && (
+            <View style={styles.ratingContainer}>
+              {displayMovie.vote_average != null && (
+                <Text style={[styles.rating, { color: theme.accent }]}>
+                  ⭐ {displayMovie.vote_average.toFixed(1)} / 10
+                </Text>
+              )}
+              {displayMovie.release_date && (
+                <Text style={[styles.releaseDate, { color: theme.textSecondary }]}>
+                  📅 {displayMovie.release_date}
+                </Text>
+              )}
+            </View>
+          )}
+
+          {displayMovie.overview ? (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Overview</Text>
+              <Text style={[styles.overview, { color: theme.textSecondary }]}>
+                {displayMovie.overview}
               </Text>
-            )}
-          </View>
+            </View>
+          ) : null}
 
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Overview</Text>
-            <Text style={[styles.overview, { color: theme.textSecondary }]}>
-              {movie.overview}
-            </Text>
-          </View>
-
-          {movie.genres && movie.genres.length > 0 && (
+          {displayMovie.genres && displayMovie.genres.length > 0 ? (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Genres</Text>
               <View style={styles.genresContainer}>
-                {movie.genres.map((genre, index) => (
+                {displayMovie.genres.map((genre, index) => (
                   <View
                     key={index}
                     style={[
@@ -111,61 +149,61 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                       { backgroundColor: theme.primary },
                     ]}
                   >
-                    <Text style={styles.genreText}>{genre}</Text>
+                    <Text style={styles.genreText}>{genre.name || genre}</Text>
                   </View>
                 ))}
               </View>
             </View>
-          )}
+          ) : null}
 
-          {movie.runtime && (
+          {displayMovie.runtime ? (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
                 Runtime:
               </Text>
               <Text style={[styles.infoValue, { color: theme.text }]}>
-                {movie.runtime} minutes
+                {displayMovie.runtime} minutes
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {movie.budget && (
+          {displayMovie.budget ? (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
                 Budget:
               </Text>
               <Text style={[styles.infoValue, { color: theme.text }]}>
-                ${(movie.budget / 1000000).toFixed(1)}M
+                ${(displayMovie.budget / 1000000).toFixed(1)}M
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {movie.revenue && (
+          {displayMovie.revenue ? (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
                 Revenue:
               </Text>
               <Text style={[styles.infoValue, { color: theme.text }]}>
-                ${(movie.revenue / 1000000).toFixed(1)}M
+                ${(displayMovie.revenue / 1000000).toFixed(1)}M
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {movie.cast && movie.cast.length > 0 && (
+          {displayMovie.credits && displayMovie.credits.cast && displayMovie.credits.cast.length > 0 ? (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Cast</Text>
-              {movie.cast.slice(0, 3).map((actor, index) => (
+              {displayMovie.credits.cast.slice(0, 3).map((actor, index) => (
                 <View key={index} style={styles.castMember}>
                   <Text style={[styles.castName, { color: theme.text }]}>
-                    {actor.name}
+                    {actor.name || actor}
                   </Text>
                   <Text style={[styles.castRole, { color: theme.textSecondary }]}>
-                    as {actor.character}
+                    as {actor.character || ''}
                   </Text>
                 </View>
               ))}
             </View>
-          )}
+          ) : null}
 
           <Button
             isDarkMode={isDarkMode}
@@ -230,7 +268,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 5,
-    boxShadow: '0 2px 3px rgba(0, 0, 0, 0.25)',
   },
   content: {
     paddingHorizontal: 16,
