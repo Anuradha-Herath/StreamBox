@@ -86,9 +86,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {displayMovie.poster_path && (
+        {displayMovie.poster_path ? (
           <Image source={{ uri: POSTER_BASE_URL + displayMovie.poster_path }} style={styles.poster} />
-        )}
+        ) : null}
 
         <View style={styles.actionButtons}>
           <TouchableOpacity
@@ -128,16 +128,16 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
             </View>
           )}
 
-          {displayMovie.overview && (
+          {displayMovie.overview ? (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Overview</Text>
               <Text style={[styles.overview, { color: theme.textSecondary }]}>
                 {displayMovie.overview}
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {displayMovie.genres && displayMovie.genres.length > 0 && (
+          {displayMovie.genres && displayMovie.genres.length > 0 ? (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Genres</Text>
               <View style={styles.genresContainer}>
@@ -154,9 +154,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                 ))}
               </View>
             </View>
-          )}
+          ) : null}
 
-          {displayMovie.runtime && (
+          {displayMovie.runtime ? (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
                 Runtime:
@@ -165,9 +165,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                 {displayMovie.runtime} minutes
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {displayMovie.budget && (
+          {displayMovie.budget ? (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
                 Budget:
@@ -176,9 +176,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                 ${(displayMovie.budget / 1000000).toFixed(1)}M
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {displayMovie.revenue && (
+          {displayMovie.revenue ? (
             <View style={styles.infoRow}>
               <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
                 Revenue:
@@ -187,9 +187,9 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                 ${(displayMovie.revenue / 1000000).toFixed(1)}M
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {displayMovie.credits && displayMovie.credits.cast && displayMovie.credits.cast.length > 0 && (
+          {displayMovie.credits && displayMovie.credits.cast && displayMovie.credits.cast.length > 0 ? (
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Cast</Text>
               {displayMovie.credits.cast.slice(0, 3).map((actor, index) => (
@@ -203,7 +203,7 @@ const MovieDetailsScreen = ({ route, navigation, isDarkMode }) => {
                 </View>
               ))}
             </View>
-          )}
+          ) : null}
 
           <Button
             isDarkMode={isDarkMode}
