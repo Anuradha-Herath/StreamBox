@@ -1,5 +1,4 @@
-import React from 'react';
-import { TextInput, View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { getTheme } from '../styles/theme';
 
 const TextInputField = ({
@@ -8,9 +7,12 @@ const TextInputField = ({
   placeholder,
   value,
   onChangeText,
+  onBlur,
   secureTextEntry = false,
   keyboardType = 'default',
+  autoCapitalize = 'sentences',
   error,
+  helperText,
   editable = true,
 }) => {
   const theme = getTheme(isDarkMode);
@@ -31,11 +33,17 @@ const TextInputField = ({
         placeholderTextColor={theme.textSecondary}
         value={value}
         onChangeText={onChangeText}
+        onBlur={onBlur}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
         editable={editable}
       />
-      {error ? <Text style={[styles.error, { color: theme.error }]}>{error}</Text> : null}
+      {error ? (
+        <Text style={[styles.error, { color: theme.error }]}>{error}</Text>
+      ) : helperText ? (
+        <Text style={[styles.helperText, { color: theme.textSecondary }]}>{helperText}</Text>
+      ) : null}
     </View>
   );
 };
@@ -57,6 +65,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   error: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  helperText: {
     fontSize: 12,
     marginTop: 4,
   },
