@@ -1,10 +1,11 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { LogOut, Menu, Moon, Sun } from 'react-native-feather';
+import { ChevronRight, Menu, Moon, Sun } from 'react-native-feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/authSlice';
-import { getTheme } from '../styles/theme';
+import { commonStyles, getTheme } from '../styles/theme';
 
-const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title }) => {
+const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, navigation }) => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
   const theme = getTheme(isDarkMode);
@@ -22,33 +23,32 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title }) => {
     .slice(0, 2);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.primary }]}>
+    <LinearGradient
+      colors={[theme.primary, theme.primary + 'CC']}  // Subtle gradient fade
+      style={[styles.container, commonStyles.shadow]}
+    >
       <View style={styles.leftSection}>
-        <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
+        <TouchableOpacity
+          onPress={onMenuPress}
+          style={styles.iconButton}
+          accessibilityLabel="Open menu"
+          accessibilityRole="button"
+        >
           <Menu width={24} height={24} stroke="#FFF" />
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.centerSection}>
         <Text style={styles.title}>{title || 'StreamBox'}</Text>
       </View>
 
       <View style={styles.rightSection}>
-        {user && (
-          <TouchableOpacity
-            style={[styles.userAvatar, { backgroundColor: theme.secondary }]}
-            onPress={() => {
-              // TODO: Navigate to profile screen
-            }}
-          >
-            <Text style={styles.avatarText}>{initials}</Text>
-          </TouchableOpacity>
-        )}
-
-        {user && (
-          <Text style={styles.username} numberOfLines={1}>
-            {displayName}
-          </Text>
-        )}
-
-        <TouchableOpacity onPress={onThemeToggle} style={styles.iconButton}>
+        <TouchableOpacity
+          onPress={onThemeToggle}
+          style={styles.iconButton}
+          accessibilityLabel="Toggle theme"
+          accessibilityRole="button"
+        >
           {isDarkMode ? (
             <Sun width={22} height={22} stroke="#FFF" />
           ) : (
@@ -57,12 +57,18 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title }) => {
         </TouchableOpacity>
 
         {user && (
-          <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
-            <LogOut width={22} height={22} stroke="#FFF" />
+          <TouchableOpacity
+            style={[styles.userAvatar, { backgroundColor: theme.secondary }]}
+            onPress={() => navigation.navigate('ProfileTab')}
+            accessibilityLabel="Go to profile"
+            accessibilityRole="button"
+          >
+            <Text style={styles.avatarText}>{initials}</Text>
+            <ChevronRight width={12} height={12} stroke="#FFF" style={styles.chevron} />
           </TouchableOpacity>
         )}
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -71,47 +77,55 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingTop: 16,
+    paddingHorizontal: 20,  // Increased for better spacing
+    paddingVertical: 14,
+    paddingTop: 18,
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  centerSection: {
     flex: 1,
+    alignItems: 'center',
   },
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 8,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,  // Larger for prominence
+    fontWeight: '800',  // Bolder
     color: '#FFF',
-    marginLeft: 12,
   },
   username: {
     color: '#FFF',
-    fontSize: 13,
-    marginHorizontal: 8,
-    maxWidth: 100,
-    fontWeight: '500',
+    fontSize: 14,  // Slightly larger
+    marginHorizontal: 12,  // More padding
+    maxWidth: 120,  // Allow more space
+    fontWeight: '600',
   },
   userAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,  // Slightly larger
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',  // For chevron positioning
   },
   avatarText: {
     color: '#FFF',
-    fontSize: 13,
+    fontSize: 14,  // Larger
     fontWeight: '700',
   },
+  chevron: {
+    position: 'absolute',
+    right: -10,  // Position outside the circle
+    top: '50%',
+    transform: [{ translateY: -6 }],
+  },
   iconButton: {
-    padding: 8,
+    padding: 10,  // Slightly more padding
     borderRadius: 20,
   },
 });

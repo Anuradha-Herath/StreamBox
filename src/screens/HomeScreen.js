@@ -146,6 +146,7 @@ const HomeScreen = ({ navigation }) => {
         onMenuPress={handleMenuPress}
         onThemeToggle={handleThemeToggle}
         title="Home"
+        navigation={navigation}
       />
 
       <SearchBar
