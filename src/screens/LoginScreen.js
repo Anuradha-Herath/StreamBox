@@ -2,13 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '../components/Button';
@@ -72,7 +72,7 @@ const LoginScreen = ({ navigation }) => {
       await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
 
       setLoading(false);
-      Alert.alert('Success', `Welcome back, ${userData.firstName}!`);
+      // Don't show alert, let the navigation happen automatically
     } catch (error) {
       setLoading(false);
       const errorMessage = getErrorMessage(error);
