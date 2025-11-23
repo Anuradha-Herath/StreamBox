@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import LoadingSpinner from '../components/LoadingSpinner';
+import MovieSplashScreen from '../components/MovieSplashScreen';
 import { logout, setUser } from '../redux/authSlice';
 import { setFavorites } from '../redux/favoritesSlice';
 import { setTheme } from '../redux/themeSlice';
@@ -24,6 +25,12 @@ const RootNavigator = () => {
   useEffect(() => {
     bootstrapAsync();
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading]);
 
   const bootstrapAsync = async () => {
     try {
@@ -88,7 +95,10 @@ const RootNavigator = () => {
       console.error('Failed to restore session:', e);
       setSessionError('Failed to load session. Please try again.');
     } finally {
-      setIsLoading(false);
+      // Add a minimum delay to show the splash screen
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2500); // 2.5 seconds to display splash
     }
   };
 
@@ -99,7 +109,7 @@ const RootNavigator = () => {
   }, []);
 
   if (isLoading) {
-    return <LoadingSpinner isDarkMode={isDarkMode} message="Loading..." />;
+    return <MovieSplashScreen isDarkMode={isDarkMode} />;
   }
 
   return (

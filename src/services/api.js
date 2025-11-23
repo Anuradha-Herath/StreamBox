@@ -300,9 +300,13 @@ export const authService = {
 // Movie Service
 export const movieService = {
   // Fetch trending movies from TMDB API
-  getTrendingMovies: async () => {
+  getTrendingMovies: async (page = 1) => {
     try {
-      const response = await tmdbClient.get('/trending/movie/week');
+      const response = await tmdbClient.get('/trending/movie/week', {
+        params: {
+          page: page,
+        },
+      });
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.status_message || 'Failed to fetch trending movies');
@@ -320,6 +324,16 @@ export const movieService = {
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.status_message || 'Failed to fetch movie details');
+    }
+  },
+
+  // Fetch similar movies
+  getSimilarMovies: async (movieId) => {
+    try {
+      const response = await tmdbClient.get(`/movie/${movieId}/similar`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.status_message || 'Failed to fetch similar movies');
     }
   },
 

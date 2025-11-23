@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { AlertCircle } from 'react-native-feather';
+import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getTheme } from '../styles/theme';
 
 const ErrorBanner = ({ isDarkMode, message, onRetry }) => {
@@ -9,7 +8,7 @@ const ErrorBanner = ({ isDarkMode, message, onRetry }) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.error }]}>
       <View style={styles.content}>
-        <AlertCircle width={20} height={20} stroke="#FFF" />
+        <Ionicons name="alert-circle-outline" size={20} color="#FFF" />
         <Text style={styles.message}>{message}</Text>
       </View>
       {onRetry && (

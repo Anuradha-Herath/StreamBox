@@ -1,22 +1,23 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   Share,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
-import { ArrowLeft, Heart, Share2 } from 'react-native-feather';
+import { ArrowLeft, Calendar, Clock, Play, Share2, Star } from 'react-native-feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { addFavorite, removeFavorite } from '../redux/favoritesSlice';
 import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
-import { POSTER_BASE_URL } from '../utils/constants';
+import { BACKDROP_BASE_URL, POSTER_BASE_URL, STORAGE_KEYS } from '../utils/constants';
 
 const MovieDetailsScreen = ({ route, navigation }) => {
   const { movie } = route.params;
@@ -27,6 +28,7 @@ const MovieDetailsScreen = ({ route, navigation }) => {
   const isFavorite = favorites.some(fav => fav.id === movie.id);
   const [fullMovie, setFullMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [similarMovies, setSimilarMovies] = useState([]);
 
   useEffect(() => {
     fetchMovieDetails();
@@ -35,23 +37,48 @@ const MovieDetailsScreen = ({ route, navigation }) => {
   const fetchMovieDetails = async () => {
     try {
       setLoading(true);
-      const data = await movieService.getMovieDetails(movie.id);
-      setFullMovie(data);
+      const [movieData, similarData] = await Promise.all([
+        movieService.getMovieDetails(movie.id),
+        movieService.getSimilarMovies(movie.id)
+      ]);
+      setFullMovie(movieData);
+      setSimilarMovies(similarData.results || []);
     } catch (error) {
       console.error('Failed to fetch movie details:', error);
       // Fallback to basic movie data
       setFullMovie(movie);
+      setSimilarMovies([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFavoriteToggle = () => {
-    if (isFavorite) {
-      dispatch(removeFavorite(movie.id));
-    } else {
-      dispatch(addFavorite(movie));
+  const handleFavoriteToggle = async () => {
+    try {
+      const isCurrentlyFavorite = favorites.some(fav => fav.id === movie.id);
+      if (isCurrentlyFavorite) {
+        dispatch(removeFavorite(movie.id));
+      } else {
+        dispatch(addFavorite(movie));
+      }
+
+      // Persist to storage
+      const updatedFavorites = isCurrentlyFavorite
+        ? favorites.filter(fav => fav.id !== movie.id)
+        : [...favorites, movie];
+
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.FAVORITES,
+        JSON.stringify(updatedFavorites)
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update favorites');
     }
+  };
+
+  const handlePlayNow = () => {
+    // Placeholder for play functionality
+    alert('Play functionality not implemented yet');
   };
 
   const handleShare = async () => {
@@ -71,147 +98,156 @@ const MovieDetailsScreen = ({ route, navigation }) => {
 
   const displayMovie = fullMovie || movie;
 
+  const formatDuration = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
+  const getDirector = (credits) => {
+    if (!credits || !credits.crew) return 'Unknown';
+    const director = credits.crew.find(person => person.job === 'Director');
+    return director ? director.name : 'Unknown';
+  };
+
+  const getYear = (releaseDate) => {
+    return releaseDate ? new Date(releaseDate).getFullYear().toString() : 'Unknown';
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <ArrowLeft width={24} height={24} stroke={theme.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.text }]} numberOfLines={1}>
-          Details
-        </Text>
-        <View style={styles.headerPlaceholder} />
-      </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {displayMovie.poster_path ? (
-          <Image source={{ uri: POSTER_BASE_URL + displayMovie.poster_path }} style={styles.poster} />
-        ) : null}
-
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.primary }]}
-            onPress={handleFavoriteToggle}
-          >
-            <Heart
-              width={24}
-              height={24}
-              stroke="#FFF"
-              fill={isFavorite ? '#FFF' : 'none'}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: theme.secondary }]}
-            onPress={handleShare}
-          >
-            <Share2 width={24} height={24} stroke="#FFF" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={[styles.title, { color: theme.text }]}>{displayMovie.title || 'Untitled'}</Text>
-
-          {(displayMovie.vote_average != null || displayMovie.release_date) && (
-            <View style={styles.ratingContainer}>
-              {displayMovie.vote_average != null && (
-                <Text style={[styles.rating, { color: theme.accent }]}>
-                  ⭐ {displayMovie.vote_average.toFixed(1)} / 10
-                </Text>
-              )}
-              {displayMovie.release_date && (
-                <Text style={[styles.releaseDate, { color: theme.textSecondary }]}>
-                  📅 {displayMovie.release_date}
-                </Text>
-              )}
-            </View>
-          )}
-
-          {displayMovie.overview ? (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Overview</Text>
-              <Text style={[styles.overview, { color: theme.textSecondary }]}>
-                {displayMovie.overview}
-              </Text>
-            </View>
-          ) : null}
-
-          {displayMovie.genres && displayMovie.genres.length > 0 ? (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Genres</Text>
-              <View style={styles.genresContainer}>
-                {displayMovie.genres.map((genre, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.genreTag,
-                      { backgroundColor: theme.primary },
-                    ]}
-                  >
-                    <Text style={styles.genreText}>{genre.name || genre}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ) : null}
-
-          {displayMovie.runtime ? (
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
-                Runtime:
-              </Text>
-              <Text style={[styles.infoValue, { color: theme.text }]}>
-                {displayMovie.runtime} minutes
-              </Text>
-            </View>
-          ) : null}
-
-          {displayMovie.budget ? (
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
-                Budget:
-              </Text>
-              <Text style={[styles.infoValue, { color: theme.text }]}>
-                ${(displayMovie.budget / 1000000).toFixed(1)}M
-              </Text>
-            </View>
-          ) : null}
-
-          {displayMovie.revenue ? (
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>
-                Revenue:
-              </Text>
-              <Text style={[styles.infoValue, { color: theme.text }]}>
-                ${(displayMovie.revenue / 1000000).toFixed(1)}M
-              </Text>
-            </View>
-          ) : null}
-
-          {displayMovie.credits && displayMovie.credits.cast && displayMovie.credits.cast.length > 0 ? (
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Cast</Text>
-              {displayMovie.credits.cast.slice(0, 3).map((actor, index) => (
-                <View key={index} style={styles.castMember}>
-                  <Text style={[styles.castName, { color: theme.text }]}>
-                    {actor.name || actor}
-                  </Text>
-                  <Text style={[styles.castRole, { color: theme.textSecondary }]}>
-                    as {actor.character || ''}
-                  </Text>
+        {/* Hero Section with Backdrop */}
+        <View style={styles.heroSection}>
+          <Image
+            source={{ uri: BACKDROP_BASE_URL + (displayMovie.backdrop_path || displayMovie.poster_path) }}
+            style={styles.heroImage}
+          />
+          {/* Gradient Overlay */}
+          <View style={styles.gradientOverlay} />
+          {/* Header Controls */}
+          <View style={styles.headerControls}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.controlButton}
+            >
+              <ArrowLeft width={20} height={20} stroke="#FFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleShare}
+              style={styles.controlButton}
+            >
+              <Share2 width={20} height={20} stroke="#FFF" />
+            </TouchableOpacity>
+          </View>
+          {/* Movie Info Overlay */}
+          <View style={styles.movieInfoOverlay}>
+            <View style={styles.genresContainer}>
+              {displayMovie.genres && displayMovie.genres.slice(0, 3).map((genre, index) => (
+                <View key={index} style={styles.genreTag}>
+                  <Text style={styles.genreText}>{genre.name || genre}</Text>
                 </View>
               ))}
             </View>
-          ) : null}
+            <Text style={styles.title}>{displayMovie.title || 'Untitled'}</Text>
+            <View style={styles.movieStats}>
+              <View style={styles.statItem}>
+                <Star width={16} height={16} stroke="#FFD700" fill="#FFD700" />
+                <Text style={styles.statText}>{displayMovie.vote_average?.toFixed(1) || 'N/A'}</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Calendar width={16} height={16} stroke="#FFF" />
+                <Text style={styles.statText}>{getYear(displayMovie.release_date)}</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Clock width={16} height={16} stroke="#FFF" />
+                <Text style={styles.statText}>{displayMovie.runtime ? formatDuration(displayMovie.runtime) : 'N/A'}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-          <Button
-            isDarkMode={isDarkMode}
-            title={isFavorite ? '❤️ Remove from Favorites' : '🤍 Add to Favorites'}
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.playButton}
+            onPress={handlePlayNow}
+          >
+            <Play width={20} height={20} stroke="#FFF" fill="#FFF" />
+            <Text style={styles.playButtonText}>Play Now</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.favoriteButton, isFavorite && styles.favoriteButtonActive]}
             onPress={handleFavoriteToggle}
-            style={styles.favoriteButton}
-          />
+          >
+            <Text style={[styles.favoriteIcon, { color: isFavorite ? '#FFF' : '#9CA3AF' }]}>
+              {isFavorite ? '❤️' : '🤍'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Content Sections */}
+        <View style={styles.content}>
+          {/* Synopsis */}
+          {displayMovie.overview && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Synopsis</Text>
+              <Text style={[styles.synopsis, { color: theme.textSecondary }]}>{displayMovie.overview}</Text>
+            </View>
+          )}
+
+          {/* Director */}
+          <View style={styles.section}>
+            <Text style={[styles.directorLabel, { color: theme.textSecondary }]}>Directed by</Text>
+            <Text style={[styles.directorName, { color: theme.text }]}>{getDirector(displayMovie.credits)}</Text>
+          </View>
+
+          {/* Cast */}
+          {displayMovie.credits && displayMovie.credits.cast && displayMovie.credits.cast.length > 0 && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Cast</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.castScroll}>
+                {displayMovie.credits.cast.slice(0, 10).map((actor, index) => (
+                  <View key={index} style={styles.castItem}>
+                    <Image
+                      source={{ uri: POSTER_BASE_URL + actor.profile_path }}
+                      style={styles.castImage}
+                    />
+                    <Text style={[styles.castName, { color: theme.text }]} numberOfLines={1}>
+                      {actor.name}
+                    </Text>
+                    <Text style={[styles.castRole, { color: theme.textSecondary }]} numberOfLines={1}>
+                      {actor.character}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* More Like This */}
+          {similarMovies.length > 0 && (
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>More Like This</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.similarScroll}>
+                {similarMovies.slice(0, 10).map((similarMovie) => (
+                  <TouchableOpacity
+                    key={similarMovie.id}
+                    style={styles.similarItem}
+                    onPress={() => navigation.push('MovieDetails', { movie: similarMovie })}
+                  >
+                    <Image
+                      source={{ uri: POSTER_BASE_URL + similarMovie.poster_path }}
+                      style={styles.similarImage}
+                    />
+                    <Text style={[styles.similarTitle, { color: theme.text }]} numberOfLines={2}>
+                      {similarMovie.title}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -222,128 +258,210 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
-  },
-  headerPlaceholder: {
-    width: 40,
-  },
   scrollContent: {
     paddingBottom: 40,
   },
-  poster: {
-    width: '100%',
-    height: 300,
-    backgroundColor: '#e0e0e0',
+  heroSection: {
+    height: 400,
+    position: 'relative',
   },
-  actionButtons: {
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(18, 18, 24, 0.6)',
+  },
+  headerControls: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    marginTop: -30,
-    marginBottom: 20,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     zIndex: 10,
   },
-  iconButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  controlButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 5,
+    backdropFilter: 'blur(10px)',
   },
-  content: {
-    paddingHorizontal: 16,
+  movieInfoOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  genresContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  genreTag: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(147, 51, 234, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(147, 51, 234, 0.3)',
+    marginRight: 8,
+  },
+  genreText: {
+    color: '#C084FC',
+    fontSize: 12,
+    fontWeight: '500',
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 12,
+    color: '#FFF',
+    marginBottom: 10,
   },
-  ratingContainer: {
+  movieStats: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  rating: {
-    fontSize: 16,
-    fontWeight: '600',
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginRight: 16,
   },
-  releaseDate: {
+  statText: {
+    color: '#D1D5DB',
     fontSize: 14,
+    marginLeft: 4,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    gap: 12,
+  },
+  playButton: {
+    flex: 1,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#9333EA',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  playButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  watchlistButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(156, 163, 175, 1)',
+    backgroundColor: 'rgba(55, 65, 81, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  watchlistButtonActive: {
+    borderColor: 'rgba(147, 51, 234, 0.5)',
+    backgroundColor: 'rgba(147, 51, 234, 0.2)',
+  },
+  favoriteButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(156, 163, 175, 1)',
+    backgroundColor: 'rgba(55, 65, 81, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteButtonActive: {
+    borderColor: 'rgba(239, 68, 68, 0.5)',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+  },
+  favoriteIcon: {
+    fontSize: 20,
+  },
+  content: {
+    paddingHorizontal: 20,
   },
   section: {
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
   },
-  overview: {
+  synopsis: {
     fontSize: 14,
     lineHeight: 20,
   },
-  genresContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  directorLabel: {
+    fontSize: 14,
+    marginBottom: 4,
   },
-  genreTag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  genreText: {
-    color: '#FFF',
-    fontSize: 12,
+  directorName: {
+    fontSize: 16,
     fontWeight: '500',
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
+  castScroll: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  castItem: {
+    width: 80,
+    marginRight: 16,
+    alignItems: 'center',
+  },
+  castImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     marginBottom: 8,
-  },
-  infoLabel: {
-    fontSize: 14,
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  castMember: {
-    marginBottom: 12,
+    backgroundColor: '#E5E7EB',
   },
   castName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
+    textAlign: 'center',
   },
   castRole: {
-    fontSize: 12,
+    fontSize: 10,
+    textAlign: 'center',
   },
-  favoriteButton: {
-    marginVertical: 20,
+  similarScroll: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  similarItem: {
+    width: 120,
+    marginRight: 12,
+    alignItems: 'center',
+  },
+  similarImage: {
+    width: 120,
+    height: 180,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#E5E7EB',
+  },
+  similarTitle: {
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 16,
   },
 });
 

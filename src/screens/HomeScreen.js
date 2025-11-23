@@ -1,21 +1,25 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  StyleSheet
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import BottomNav from '../components/BottomNav';
 import ErrorBanner from '../components/ErrorBanner';
-import Header from '../components/Header';
 import LoadingSpinner from '../components/LoadingSpinner';
 import MovieCard from '../components/MovieCard';
-import SearchBar from '../components/SearchBar';
 import { logout } from '../redux/authSlice';
 import { addFavorite, removeFavorite, setFavorites } from '../redux/favoritesSlice';
-import { fetchMoviesFailure, fetchMoviesStart, fetchMoviesSuccess } from '../redux/moviesSlice';
-import { toggleTheme } from '../redux/themeSlice';
+import { fetchMoviesAppend, fetchMoviesFailure, fetchMoviesStart, fetchMoviesSuccess } from '../redux/moviesSlice';
 import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
@@ -28,6 +32,9 @@ const HomeScreen = ({ navigation }) => {
   const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const theme = getTheme(isDarkMode);
 
   useEffect(() => {
@@ -39,13 +46,23 @@ const HomeScreen = ({ navigation }) => {
     filterMovies();
   }, [movies, searchQuery]);
 
-  const loadMovies = async () => {
+  const loadMovies = async (page = 1) => {
     try {
-      dispatch(fetchMoviesStart());
-      const data = await movieService.getTrendingMovies();
-      dispatch(fetchMoviesSuccess(data.results));
+      if (page === 1) {
+        dispatch(fetchMoviesStart());
+      } else {
+        setIsLoadingMore(true);
+      }
+      const data = await movieService.getTrendingMovies(page);
+      if (page === 1) {
+        dispatch(fetchMoviesSuccess(data.results));
+      } else {
+        dispatch(fetchMoviesAppend(data.results));
+      }
     } catch (err) {
       dispatch(fetchMoviesFailure(err.message));
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -102,13 +119,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleMenuPress = () => {
-    Alert.alert('Menu', 'Navigation menu options', [
-      { text: 'Profile', onPress: () => navigation.navigate('ProfileTab') },
-      { text: 'Favorites', onPress: () => navigation.navigate('FavoritesTab') },
-      { text: 'Settings', onPress: () => navigation.navigate('SettingsTab') },
-      { text: 'Logout', onPress: handleLogout },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    setIsMenuVisible(true);
   };
 
   const handleLogout = async () => {
@@ -119,11 +130,6 @@ const HomeScreen = ({ navigation }) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to logout');
     }
-  };
-
-  const handleThemeToggle = async () => {
-    dispatch(toggleTheme());
-    await AsyncStorage.setItem(STORAGE_KEYS.THEME_MODE, JSON.stringify(!isDarkMode));
   };
 
   const renderMovieItem = useCallback(({ item }) => (
@@ -142,35 +148,160 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-      <Header
-        isDarkMode={isDarkMode}
-        onMenuPress={handleMenuPress}
-        onThemeToggle={handleThemeToggle}
-        title="Home"
-      />
+      {/* Header Section */}
+      <View style={[styles.header, { backgroundColor: theme.background }]}>
+        <View style={styles.headerContent}>
+          {/* Top Row - Greeting & Actions */}
+          <View style={styles.headerTopRow}>
+            <View style={styles.profileSection}>
+              <View style={styles.avatarContainer}>
+                <View style={[styles.avatar, { backgroundColor: theme.primary, borderColor: `${theme.primary}50` }]}>
+                  <Text style={styles.avatarText}>
+                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.greetingSection}>
+                <View style={styles.greetingRow}>
+                  <Ionicons name="star" size={14} color={theme.textSecondary} />
+                  <Text style={[styles.greetingText, { color: theme.textSecondary }]}>Hello,</Text>
+                </View>
+                <Text style={[styles.userName, { color: theme.text }]}>
+                  {user?.username || 'User'}
+                </Text>
+              </View>
+            </View>
 
-      <SearchBar
-        isDarkMode={isDarkMode}
-        onSearch={setSearchQuery}
-        placeholder="Search movies..."
-      />
+            {/* Action Buttons */}
+            <View style={styles.actionButtons}>
+              <TouchableOpacity style={[styles.notificationButton, { backgroundColor: theme.surface }]}>
+                <Ionicons name="notifications-outline" size={20} color={theme.primary} />
+                {/* Notification Badge */}
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.badgeText}>3</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-      {error && (
-        <ErrorBanner
-          isDarkMode={isDarkMode}
-          message={error}
-          onRetry={loadMovies}
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <View style={styles.searchIconContainer}>
+              <Ionicons name="search" size={20} color={theme.textSecondary} />
+            </View>
+            <TextInput
+              style={[styles.searchInput, { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border }]}
+              placeholder="Search movies, shows, podcasts..."
+              placeholderTextColor={theme.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* Main Content */}
+      <View style={styles.mainContent}>
+        {/* Section Title */}
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Trending Now</Text>
+          <View style={styles.titleUnderline} />
+        </View>
+
+        {error && (
+          <ErrorBanner
+            isDarkMode={isDarkMode}
+            message={error}
+            onRetry={loadMovies}
+          />
+        )}
+
+        <FlatList
+          data={filteredMovies}
+          renderItem={renderMovieItem}
+          keyExtractor={(item, index) => item.id.toString() + '-' + index.toString()}
+          numColumns={2}
+          initialNumToRender={6}
+          maxToRenderPerBatch={4}
+          windowSize={5}
+          removeClippedSubviews={true}
+          scrollEnabled={true}
+          contentContainerStyle={styles.gridContainer}
+          onEndReached={() => {
+            if (!isLoadingMore && movies.length > 0) {
+              const nextPage = currentPage + 1;
+              setCurrentPage(nextPage);
+              loadMovies(nextPage);
+            }
+          }}
+          onEndReachedThreshold={0.5}
+          ListEmptyComponent={
+            !isLoading && (
+              <View style={styles.emptyContainer}>
+                <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                  No movies found
+                </Text>
+              </View>
+            )
+          }
         />
-      )}
+      </View>
 
-      <FlatList
-        data={filteredMovies}
-        renderItem={renderMovieItem}
-        keyExtractor={item => item.id.toString()}
-        scrollEnabled={true}
-        contentContainerStyle={styles.listContent}
-        onEndReachedThreshold={0.5}
-      />
+      <Modal
+        isVisible={isMenuVisible}
+        onBackdropPress={() => setIsMenuVisible(false)}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropOpacity={0.3}
+        style={{ justifyContent: 'flex-end', margin: 0 }}
+      >
+        <View style={[styles.bottomSheet, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.sheetTitle, { color: theme.text }]}>Menu</Text>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              navigation.navigate('ProfileTab');
+            }}
+          >
+            <Text style={{ color: theme.text }}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              navigation.navigate('FavoritesTab');
+            }}
+          >
+            <Text style={{ color: theme.text }}>Favorites</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              navigation.navigate('SettingsTab');
+            }}
+          >
+            <Text style={{ color: theme.text }}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              handleLogout();
+            }}
+          >
+            <Text style={{ color: theme.error }}>Logout</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setIsMenuVisible(false)}
+          >
+            <Text style={{ color: theme.textSecondary }}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+      <BottomNav navigation={navigation} currentRoute="HomeTab" />
     </SafeAreaView>
   );
 };
@@ -179,8 +310,174 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  listContent: {
-    paddingBottom: 20,
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 24,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  headerGradientBg: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 32,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+  },
+  headerContent: {
+    position: 'relative',
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    marginRight: 12,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+  avatarText: {
+    color: '#FFF',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  greetingSection: {
+    paddingRight: 12,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  greetingText: {
+    fontSize: 14,
+    marginLeft: 6,
+    fontWeight: '500',
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+  },
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FF6B6B',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  searchContainer: {
+    position: 'relative',
+    marginTop: 12,
+  },
+  searchIconContainer: {
+    position: 'absolute',
+    left: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 1,
+  },
+  searchInput: {
+    width: '100%',
+    paddingLeft: 52,
+    paddingRight: 16,
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  mainContent: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  sectionHeader: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  titleUnderline: {
+    width: 64,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#9333EA',
+  },
+  gridContainer: {
+    paddingBottom: 120,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+  },
+  bottomSheet: {
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '50%',
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+  },
+  cancelButton: {
+    marginTop: 15,
+    alignSelf: 'center',
+    paddingVertical: 10,
   },
 });
 
