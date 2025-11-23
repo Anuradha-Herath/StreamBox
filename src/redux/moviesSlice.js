@@ -19,6 +19,11 @@ const moviesSlice = createSlice({
       state.movies = action.payload;
       state.error = null;
     },
+    fetchMoviesAppend: (state, action) => {
+      state.isLoading = false;
+      state.movies = [...state.movies, ...action.payload];
+      state.error = null;
+    },
     fetchMoviesFailure: (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
@@ -32,6 +37,7 @@ const moviesSlice = createSlice({
 export const {
   fetchMoviesStart,
   fetchMoviesSuccess,
+  fetchMoviesAppend,
   fetchMoviesFailure,
   setMovies,
 } = moviesSlice.actions;

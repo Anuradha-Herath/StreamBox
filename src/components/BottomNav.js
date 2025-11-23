@@ -1,5 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Heart, Home, User } from 'react-native-feather';
 
 const BottomNav = ({ navigation, currentRoute }) => {
 
@@ -20,10 +20,10 @@ const BottomNav = ({ navigation, currentRoute }) => {
               isActive('HomeTab') && styles.iconContainerActive,
             ]}
           >
-            <Home
-              width={24}
-              height={24}
-              stroke={isActive('HomeTab') ? '#FFF' : '#9CA3AF'}
+            <Ionicons
+              name="home-outline"
+              size={24}
+              color={isActive('HomeTab') ? '#FFF' : '#9CA3AF'}
             />
           </View>
           <Text
@@ -46,10 +46,10 @@ const BottomNav = ({ navigation, currentRoute }) => {
               isActive('FavoritesTab') && styles.iconContainerActive,
             ]}
           >
-            <Heart
-              width={24}
-              height={24}
-              stroke={isActive('FavoritesTab') ? '#FFF' : '#9CA3AF'}
+            <Ionicons
+              name="heart-outline"
+              size={24}
+              color={isActive('FavoritesTab') ? '#FFF' : '#9CA3AF'}
             />
           </View>
           <Text
@@ -72,10 +72,10 @@ const BottomNav = ({ navigation, currentRoute }) => {
               isActive('ProfileTab') && styles.iconContainerActive,
             ]}
           >
-            <User
-              width={24}
-              height={24}
-              stroke={isActive('ProfileTab') ? '#FFF' : '#9CA3AF'}
+            <Ionicons
+              name="person-outline"
+              size={24}
+              color={isActive('ProfileTab') ? '#FFF' : '#9CA3AF'}
             />
           </View>
           <Text

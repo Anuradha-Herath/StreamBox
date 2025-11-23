@@ -1,6 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ChevronRight, Menu, Moon, Sun } from 'react-native-feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/authSlice';
 import { commonStyles, getTheme } from '../styles/theme';
@@ -24,7 +24,7 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, navigation }) =
 
   return (
     <LinearGradient
-      colors={[theme.primary, theme.primary + 'CC']}  // Subtle gradient fade
+      colors={['#9333EA', '#7C3AED']}
       style={[styles.container, commonStyles.shadow]}
     >
       <View style={styles.leftSection}>
@@ -34,7 +34,7 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, navigation }) =
           accessibilityLabel="Open menu"
           accessibilityRole="button"
         >
-          <Menu width={24} height={24} stroke="#FFF" />
+          <Ionicons name="menu" size={24} color="#FFF" />
         </TouchableOpacity>
       </View>
 
@@ -50,9 +50,9 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, navigation }) =
           accessibilityRole="button"
         >
           {isDarkMode ? (
-            <Sun width={22} height={22} stroke="#FFF" />
+            <Ionicons name="moon" size={22} color="#FFF" />
           ) : (
-            <Moon width={22} height={22} stroke="#FFF" />
+            <Ionicons name="sunny" size={22} color="#FFF" />
           )}
         </TouchableOpacity>
 
@@ -64,7 +64,7 @@ const Header = ({ isDarkMode, onMenuPress, onThemeToggle, title, navigation }) =
             accessibilityRole="button"
           >
             <Text style={styles.avatarText}>{initials}</Text>
-            <ChevronRight width={12} height={12} stroke="#FFF" style={styles.chevron} />
+            <Ionicons name="chevron-forward" size={12} color="#FFF" style={styles.chevron} />
           </TouchableOpacity>
         )}
       </View>
