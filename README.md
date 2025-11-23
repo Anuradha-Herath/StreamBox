@@ -49,8 +49,10 @@ A fully-functional React Native entertainment application built with Expo, featu
 
 ## Demo Credentials
 
-- Email: `user@example.com`
-- Password: `password123`
+- Username: `emilys`
+- Password: `emilyspass`
+
+*Note: These are test credentials from the DummyJSON API. More users are available at [dummyjson.com/users](https://dummyjson.com/users)*
 
 ## Tech Stack
 
