@@ -167,6 +167,7 @@ const HomeScreen = ({ navigation }) => {
         data={filteredMovies}
         renderItem={renderMovieItem}
         keyExtractor={item => item.id.toString()}
+        numColumns={2}
         scrollEnabled={true}
         contentContainerStyle={styles.listContent}
         onEndReachedThreshold={0.5}
@@ -235,6 +236,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
+    paddingHorizontal: 12,
     paddingBottom: 20,
   },
   bottomSheet: {

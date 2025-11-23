@@ -47,8 +47,9 @@ const MovieCard = React.memo(({ movie, isDarkMode, onPress, onFavoritePress, isF
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 12,
+    flex: 1,
     marginVertical: 8,
+    marginHorizontal: 4,
     borderRadius: 12,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
   },
   poster: {
     width: '100%',
-    height: 200,
+    height: 250,
     backgroundColor: '#e0e0e0',
   },
   content: {
