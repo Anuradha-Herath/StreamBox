@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
   poster: {
     width: '100%',
     height: 200,
-    backgroundColor: '#374151',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },

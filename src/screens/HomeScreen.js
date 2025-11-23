@@ -177,8 +177,8 @@ const HomeScreen = ({ navigation }) => {
 
             {/* Action Buttons */}
             <View style={styles.actionButtons}>
-              <TouchableOpacity style={styles.notificationButton}>
-                <Ionicons name="notifications-outline" size={20} color={theme.textSecondary} />
+              <TouchableOpacity style={[styles.notificationButton, { backgroundColor: theme.surface }]}>
+                <Ionicons name="notifications-outline" size={20} color={theme.primary} />
                 {/* Notification Badge */}
                 <View style={styles.notificationBadge}>
                   <Text style={styles.badgeText}>3</Text>
@@ -379,7 +379,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: 'rgba(17, 24, 39, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',

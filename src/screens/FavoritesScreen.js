@@ -1,13 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import {
-  Alert,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    Alert,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { Heart } from 'react-native-feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -56,7 +56,7 @@ const FavoritesScreen = ({ navigation }) => {
   };
 
   const renderMovieItem = ({ item }) => (
-    <View style={[styles.favoriteItem, { borderColor: theme.border }]}>
+    <View style={[styles.favoriteItem, { borderColor: theme.border, backgroundColor: isDarkMode ? 'rgba(17, 24, 39, 0.5)' : theme.surface }]}>
       <TouchableOpacity
         style={styles.thumbnailContainer}
         onPress={() => handleMoviePress(item)}
@@ -196,7 +196,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(17, 24, 39, 0.5)',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#374151',
     marginBottom: 16,
     padding: 12,
     overflow: 'hidden',
@@ -208,7 +207,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 120,
     borderRadius: 8,
-    backgroundColor: '#374151',
   },
   thumbnailOverlay: {
     position: 'absolute',

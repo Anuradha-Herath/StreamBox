@@ -1,14 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { getTheme } from '../styles/theme';
 
 const BottomNav = ({ navigation, currentRoute }) => {
+  const isDarkMode = useSelector(state => state.theme.isDarkMode);
+  const theme = getTheme(isDarkMode);
 
   const isActive = (routeName) => {
     return currentRoute === routeName;
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: '#1e1e1e', borderTopColor: '#374151' }]}>
+    <View style={[styles.container, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
       <View style={styles.navContainer}>
         <TouchableOpacity
           style={styles.navButton}
@@ -23,13 +27,13 @@ const BottomNav = ({ navigation, currentRoute }) => {
             <Ionicons
               name="home-outline"
               size={24}
-              color={isActive('HomeTab') ? '#FFF' : '#9CA3AF'}
+              color={isActive('HomeTab') ? theme.primary : theme.textSecondary}
             />
           </View>
           <Text
             style={[
               styles.label,
-              { color: isActive('HomeTab') ? '#C084FC' : '#9CA3AF' },
+              { color: isActive('HomeTab') ? theme.primary : theme.textSecondary },
             ]}
           >
             Home
@@ -49,13 +53,13 @@ const BottomNav = ({ navigation, currentRoute }) => {
             <Ionicons
               name="heart-outline"
               size={24}
-              color={isActive('FavoritesTab') ? '#FFF' : '#9CA3AF'}
+              color={isActive('FavoritesTab') ? theme.primary : theme.textSecondary}
             />
           </View>
           <Text
             style={[
               styles.label,
-              { color: isActive('FavoritesTab') ? '#C084FC' : '#9CA3AF' },
+              { color: isActive('FavoritesTab') ? theme.primary : theme.textSecondary },
             ]}
           >
             Favorites
@@ -75,13 +79,13 @@ const BottomNav = ({ navigation, currentRoute }) => {
             <Ionicons
               name="person-outline"
               size={24}
-              color={isActive('ProfileTab') ? '#FFF' : '#9CA3AF'}
+              color={isActive('ProfileTab') ? theme.primary : theme.textSecondary}
             />
           </View>
           <Text
             style={[
               styles.label,
-              { color: isActive('ProfileTab') ? '#C084FC' : '#9CA3AF' },
+              { color: isActive('ProfileTab') ? theme.primary : theme.textSecondary },
             ]}
           >
             Profile
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainerActive: {
-    backgroundColor: '#9333EA', // Purple gradient approximation
+    backgroundColor: 'rgba(147, 51, 234, 0.2)',
   },
   label: {
     fontSize: 12,

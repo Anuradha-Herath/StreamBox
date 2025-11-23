@@ -1,6 +1,6 @@
 export const themes = {
   light: {
-    primary: '#FF6B6B',
+    primary: '#9333EA',
     secondary: '#4ECDC4',
     accent: '#FFE66D',
     background: '#FFFFFF',
@@ -14,7 +14,7 @@ export const themes = {
     disabled: '#DFE6E9',
   },
   dark: {
-    primary: '#8B5CF6',
+    primary: '#9333EA',
     secondary: '#A78BFA',
     accent: '#C4B5FD',
     background: '#0F0F23',

@@ -112,7 +112,7 @@ const SettingsScreen = () => {
         {toggle && onToggleChange ? (
           <ToggleSwitch enabled={toggleValue || false} onChange={onToggleChange} />
         ) : (
-          <Feather name="chevron-right" size={20} color="#666" />
+          <Feather name="chevron-right" size={20} color={theme.textSecondary} />
         )}
       </TouchableOpacity>
     );
@@ -193,14 +193,14 @@ const SettingsScreen = () => {
         {/* Appearance Section */}
         <SettingSection title="APPEARANCE">
           <SettingItem
-            icon={<Feather name="settings" size={20} color={primaryColor} />}
+            icon={<Feather name="settings" size={20} color={theme.primary} />}
             title="Theme"
             subtitle="Customize your app appearance"
             onClick={() => {}}
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="moon" size={20} color={primaryColor} />}
+            icon={<Feather name="moon" size={20} color={theme.primary} />}
             title="Dark Mode"
             subtitle="Currently enabled"
             toggle
@@ -212,7 +212,7 @@ const SettingsScreen = () => {
         {/* Notifications Section */}
         <SettingSection title="NOTIFICATIONS">
           <SettingItem
-            icon={<Feather name="bell" size={20} color={primaryColor} />}
+            icon={<Feather name="bell" size={20} color={theme.primary} />}
             title="Push Notifications"
             subtitle="Get notified about new content"
             toggle
@@ -221,7 +221,7 @@ const SettingsScreen = () => {
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="bell" size={20} color={primaryColor} />}
+            icon={<Feather name="bell" size={20} color={theme.primary} />}
             title="Email Notifications"
             subtitle="Receive updates via email"
             toggle
@@ -233,7 +233,7 @@ const SettingsScreen = () => {
         {/* Playback Section */}
         <SettingSection title="PLAYBACK">
           <SettingItem
-            icon={<Feather name="play" size={20} color={primaryColor} />}
+            icon={<Feather name="play" size={20} color={theme.primary} />}
             title="Autoplay"
             subtitle="Play next episode automatically"
             toggle
@@ -242,14 +242,14 @@ const SettingsScreen = () => {
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="volume-2" size={20} color={primaryColor} />}
+            icon={<Feather name="volume-2" size={20} color={theme.primary} />}
             title="Video Quality"
             subtitle={hdQuality ? "HD (1080p)" : "SD (480p)"}
             onClick={() => {}}
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="play" size={20} color={primaryColor} />}
+            icon={<Feather name="play" size={20} color={theme.primary} />}
             title="Subtitles"
             subtitle="Show subtitles by default"
             toggle
@@ -261,7 +261,7 @@ const SettingsScreen = () => {
         {/* Downloads Section */}
         <SettingSection title="DOWNLOADS">
           <SettingItem
-            icon={<Feather name="download" size={20} color={primaryColor} />}
+            icon={<Feather name="download" size={20} color={theme.primary} />}
             title="Auto Download"
             subtitle="Download new episodes"
             toggle
@@ -270,7 +270,7 @@ const SettingsScreen = () => {
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="wifi" size={20} color={primaryColor} />}
+            icon={<Feather name="wifi" size={20} color={theme.primary} />}
             title="Wi-Fi Only"
             subtitle="Download only on Wi-Fi"
             toggle
@@ -279,7 +279,7 @@ const SettingsScreen = () => {
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="download" size={20} color={primaryColor} />}
+            icon={<Feather name="download" size={20} color={theme.primary} />}
             title="Download Quality"
             subtitle="High"
             onClick={() => {}}
@@ -289,21 +289,21 @@ const SettingsScreen = () => {
         {/* Privacy & Security Section */}
         <SettingSection title="PRIVACY & SECURITY">
           <SettingItem
-            icon={<Feather name="shield" size={20} color={primaryColor} />}
+            icon={<Feather name="shield" size={20} color={theme.primary} />}
             title="Privacy Settings"
             subtitle="Control your data"
             onClick={() => {}}
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="shield" size={20} color={primaryColor} />}
+            icon={<Feather name="shield" size={20} color={theme.primary} />}
             title="Security"
             subtitle="Password and authentication"
             onClick={() => {}}
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="trash-2" size={20} color={primaryColor} />}
+            icon={<Feather name="trash-2" size={20} color={theme.primary} />}
             title="Clear Cache"
             subtitle="Free up storage space"
             onClick={handleClearCache}
@@ -313,14 +313,14 @@ const SettingsScreen = () => {
         {/* Help & Support Section */}
         <SettingSection title="HELP & SUPPORT">
           <SettingItem
-            icon={<Feather name="help-circle" size={20} color={primaryColor} />}
+            icon={<Feather name="help-circle" size={20} color={theme.primary} />}
             title="Help Center"
             subtitle="FAQs and support"
             onClick={() => {}}
           />
           <View style={[styles.separator, { backgroundColor: theme.border }]} />
           <SettingItem
-            icon={<Feather name="info" size={20} color={primaryColor} />}
+            icon={<Feather name="info" size={20} color={theme.primary} />}
             title="About StreamBox"
             subtitle="Version 1.0.0"
             onClick={() => {}}
