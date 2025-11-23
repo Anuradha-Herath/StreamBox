@@ -1,50 +1,112 @@
-# Welcome to your Expo app 👋
+# StreamBox 🎬
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A fully-functional React Native entertainment application built with Expo, featuring movie browsing, user authentication, favorites management, and dark mode support.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 🔐 User Authentication (Login/Register)
+- 🎥 Movie Database with Search Functionality
+- ❤️ Favorites Management with Persistence
+- 🌙 Dark Mode Support
+- 📱 Responsive Design for Mobile Devices
+- 🔄 Redux State Management
+- 🎨 Beautiful UI with Feather Icons
+- 🧭 Comprehensive Navigation
+- ✅ Form Validation with Yup
+- 🚨 Error Handling and Loading States
 
+## Getting Started
+
+### Prerequisites
+
+- Node.js (version 18 or later)
+- npm or yarn
+- Expo CLI
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Anuradha-Herath/StreamBox.git
+   cd StreamBox
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Start the development server:
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+### Running the App
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Android Emulator**: `npm run android`
+- **iOS Simulator** (macOS only): `npm run ios`
+- **Web Browser**: `npm run web`
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Demo Credentials
 
-## Get a fresh project
+- Email: `user@example.com`
+- Password: `password123`
 
-When you're ready, run:
+## Tech Stack
 
-```bash
-npm run reset-project
+- **Framework**: React Native with Expo
+- **State Management**: Redux Toolkit
+- **Navigation**: React Navigation
+- **Forms**: Formik with Yup validation
+- **HTTP Client**: Axios
+- **Storage**: AsyncStorage
+- **Icons**: Feather Icons
+- **Styling**: React Native StyleSheet with custom theme
+
+## Project Structure
+
+```
+StreamBox/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── screens/        # App screens
+│   ├── navigation/     # Navigation configuration
+│   ├── redux/          # State management
+│   ├── services/       # API services
+│   ├── styles/         # Theme and styling
+│   └── utils/          # Utilities and constants
+├── docs/               # Documentation
+├── App.js              # Root component
+└── package.json        # Dependencies and scripts
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Documentation
 
-## Learn more
+- [Quick Start Guide](docs/QUICK_START.md)
+- [Development Guide](docs/DEVELOPMENT.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [API Integration](docs/API_INTEGRATION.md)
+- [Authentication Guide](docs/AUTHENTICATION_IMPLEMENTATION_GUIDE.md)
+- [Features Checklist](docs/FEATURES_CHECKLIST.md)
 
-To learn more about developing your project with Expo, look at the following resources:
+## Contributing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
+This project is for educational and demonstration purposes.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Learn More
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Documentation](https://reactnative.dev/docs/getting-started)
+- [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
+
+---
+
+Built with ❤️ using React Native and Expo.
