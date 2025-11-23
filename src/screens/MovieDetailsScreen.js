@@ -1,5 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   Share,
@@ -8,16 +10,14 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { ArrowLeft, Calendar, Clock, Play, Plus, Share2, Star } from 'react-native-feather';
+import { ArrowLeft, Calendar, Clock, Play, Share2, Star } from 'react-native-feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { addFavorite, removeFavorite } from '../redux/favoritesSlice';
 import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
-import { POSTER_BASE_URL } from '../utils/constants';
-
-const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
+import { BACKDROP_BASE_URL, POSTER_BASE_URL, STORAGE_KEYS } from '../utils/constants';
 
 const MovieDetailsScreen = ({ route, navigation }) => {
   const { movie } = route.params;
@@ -28,7 +28,6 @@ const MovieDetailsScreen = ({ route, navigation }) => {
   const isFavorite = favorites.some(fav => fav.id === movie.id);
   const [fullMovie, setFullMovie] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [similarMovies, setSimilarMovies] = useState([]);
 
   useEffect(() => {
@@ -54,16 +53,27 @@ const MovieDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleFavoriteToggle = () => {
-    if (isFavorite) {
-      dispatch(removeFavorite(movie.id));
-    } else {
-      dispatch(addFavorite(movie));
-    }
-  };
+  const handleFavoriteToggle = async () => {
+    try {
+      const isCurrentlyFavorite = favorites.some(fav => fav.id === movie.id);
+      if (isCurrentlyFavorite) {
+        dispatch(removeFavorite(movie.id));
+      } else {
+        dispatch(addFavorite(movie));
+      }
 
-  const handleWatchlistToggle = () => {
-    setIsInWatchlist(!isInWatchlist);
+      // Persist to storage
+      const updatedFavorites = isCurrentlyFavorite
+        ? favorites.filter(fav => fav.id !== movie.id)
+        : [...favorites, movie];
+
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.FAVORITES,
+        JSON.stringify(updatedFavorites)
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update favorites');
+    }
   };
 
   const handlePlayNow = () => {
@@ -167,10 +177,12 @@ const MovieDetailsScreen = ({ route, navigation }) => {
             <Text style={styles.playButtonText}>Play Now</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.watchlistButton, isInWatchlist && styles.watchlistButtonActive]}
-            onPress={handleWatchlistToggle}
+            style={[styles.favoriteButton, isFavorite && styles.favoriteButtonActive]}
+            onPress={handleFavoriteToggle}
           >
-            <Plus width={24} height={24} stroke={isInWatchlist ? theme.primary : '#9CA3AF'} />
+            <Text style={[styles.favoriteIcon, { color: isFavorite ? '#FFF' : '#9CA3AF' }]}>
+              {isFavorite ? '❤️' : '🤍'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -364,6 +376,23 @@ const styles = StyleSheet.create({
   watchlistButtonActive: {
     borderColor: 'rgba(147, 51, 234, 0.5)',
     backgroundColor: 'rgba(147, 51, 234, 0.2)',
+  },
+  favoriteButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(156, 163, 175, 1)',
+    backgroundColor: 'rgba(55, 65, 81, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteButtonActive: {
+    borderColor: 'rgba(239, 68, 68, 0.5)',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+  },
+  favoriteIcon: {
+    fontSize: 20,
   },
   content: {
     paddingHorizontal: 20,

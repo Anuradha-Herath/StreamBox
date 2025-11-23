@@ -48,7 +48,7 @@ const HomeScreen = ({ navigation }) => {
     try {
       dispatch(fetchMoviesStart());
       const data = await movieService.getTrendingMovies();
-      dispatch(fetchMoviesSuccess(data.results));
+      dispatch(fetchMoviesSuccess(data.results.slice(0, 10)));
     } catch (err) {
       dispatch(fetchMoviesFailure(err.message));
     }
@@ -171,6 +171,7 @@ const HomeScreen = ({ navigation }) => {
         initialNumToRender={6}
         maxToRenderPerBatch={4}
         windowSize={5}
+        removeClippedSubviews={true}
         scrollEnabled={true}
         contentContainerStyle={styles.listContent}
         onEndReachedThreshold={0.5}
