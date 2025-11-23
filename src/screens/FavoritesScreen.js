@@ -12,6 +12,7 @@ import {
 import { Heart } from 'react-native-feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import BottomNav from '../components/BottomNav';
 import { removeFavorite, setFavorites } from '../redux/favoritesSlice';
 import { getTheme } from '../styles/theme';
 import { POSTER_BASE_URL, STORAGE_KEYS } from '../utils/constants';
@@ -145,6 +146,7 @@ const FavoritesScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <BottomNav navigation={navigation} currentRoute="FavoritesTab" />
     </SafeAreaView>
   );
 };

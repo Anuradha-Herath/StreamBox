@@ -7,6 +7,7 @@ import {
 import { Mail, User } from 'react-native-feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
+import BottomNav from '../components/BottomNav';
 import Button from '../components/Button';
 import { getTheme } from '../styles/theme';
 
@@ -125,6 +126,7 @@ const ProfileScreen = ({ navigation }) => {
           />
         </View>
       </ScrollView>
+      <BottomNav navigation={navigation} currentRoute="ProfileTab" />
     </SafeAreaView>
   );
 };

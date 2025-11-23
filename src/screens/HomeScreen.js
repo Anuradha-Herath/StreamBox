@@ -11,6 +11,7 @@ import {
 import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
+import BottomNav from '../components/BottomNav';
 import ErrorBanner from '../components/ErrorBanner';
 import Header from '../components/Header';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -231,6 +232,7 @@ const HomeScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </Modal>
+      <BottomNav navigation={navigation} currentRoute="HomeTab" />
     </SafeAreaView>
   );
 };

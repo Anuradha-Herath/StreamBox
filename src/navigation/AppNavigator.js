@@ -103,12 +103,7 @@ const AppNavigator = () => {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: {
-          backgroundColor: theme.surface,
-          borderTopColor: theme.border,
-          borderTopWidth: 1,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 70,
+          display: 'none', // Hide default tab bar
         },
         tabBarLabelStyle: {
           fontSize: 11,
