@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
-import moviesReducer from './moviesSlice';
 import favoritesReducer from './favoritesSlice';
+import moviesReducer from './moviesSlice';
 import themeReducer from './themeSlice';
 
 export const store = configureStore({
@@ -11,6 +11,10 @@ export const store = configureStore({
     favorites: favoritesReducer,
     theme: themeReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export default store;
