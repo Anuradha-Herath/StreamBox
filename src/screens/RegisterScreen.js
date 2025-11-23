@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormik } from 'formik';
 import { useState } from 'react';
@@ -113,9 +114,12 @@ const RegisterScreen = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.headerSection}>
-          <Text style={[styles.title, { color: theme.text }]}>Create Account</Text>
+          <View style={[styles.logoContainer, { backgroundColor: theme.primary }]}>
+            <Text style={styles.logo}>🎬</Text>
+          </View>
+          <Text style={[styles.title, { color: theme.text }]}>StreamBox</Text>
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            Join StreamBox today
+            Join the movie community
           </Text>
         </View>
 
@@ -128,33 +132,42 @@ const RegisterScreen = ({ navigation }) => {
         )}
 
         <View style={styles.formSection}>
-          <TextInputField
-            isDarkMode={isDarkMode}
-            label="Username"
-            placeholder="Choose a username"
-            value={formik.values.username}
-            onChangeText={formik.handleChange('username')}
-            onBlur={formik.handleBlur('username')}
-            autoCapitalize="none"
-            editable={!loading}
-            error={formik.touched.username ? formik.errors.username : ''}
-            helperText="3-30 characters, letters, numbers, underscores, and hyphens only"
-          />
+          <Text style={[styles.signInTitle, { color: theme.text }]}>Create Account</Text>
 
-          <TextInputField
-            isDarkMode={isDarkMode}
-            label="Email"
-            placeholder="Enter your email"
-            value={formik.values.email}
-            onChangeText={formik.handleChange('email')}
-            onBlur={formik.handleBlur('email')}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={!loading}
-            error={formik.touched.email ? formik.errors.email : ''}
-          />
+          <View style={styles.inputContainer}>
+            <Ionicons name="person-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+            <TextInputField
+              isDarkMode={isDarkMode}
+              label="Username"
+              placeholder="Choose a username"
+              value={formik.values.username}
+              onChangeText={formik.handleChange('username')}
+              onBlur={formik.handleBlur('username')}
+              autoCapitalize="none"
+              editable={!loading}
+              error={formik.touched.username ? formik.errors.username : ''}
+              helperText="3-30 characters, letters, numbers, underscores, and hyphens only"
+            />
+          </View>
 
-          <View>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+            <TextInputField
+              isDarkMode={isDarkMode}
+              label="Email"
+              placeholder="Enter your email"
+              value={formik.values.email}
+              onChangeText={formik.handleChange('email')}
+              onBlur={formik.handleBlur('email')}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+              error={formik.touched.email ? formik.errors.email : ''}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
             <TextInputField
               isDarkMode={isDarkMode}
               label="Password"
@@ -168,7 +181,7 @@ const RegisterScreen = ({ navigation }) => {
             />
 
             {passwordStrength && formik.values.password && (
-              <View style={[styles.strengthContainer, { borderColor: theme.border }]}>
+              <View style={styles.strengthContainer}>
                 <View
                   style={[
                     styles.strengthBar,
@@ -176,10 +189,10 @@ const RegisterScreen = ({ navigation }) => {
                       width: `${(passwordStrength.score / 5) * 100}%`,
                       backgroundColor:
                         passwordStrength.score < 2
-                          ? theme.error
+                          ? '#ff4444'
                           : passwordStrength.score < 4
-                          ? theme.warning
-                          : theme.success,
+                          ? '#ffaa00'
+                          : '#00aa00',
                     },
                   ]}
                 />
@@ -196,8 +209,8 @@ const RegisterScreen = ({ navigation }) => {
                       {
                         color:
                           passwordStrength.feedback.includes('Strong password')
-                            ? theme.success
-                            : theme.warning,
+                            ? '#00aa00'
+                            : '#ffaa00',
                       },
                     ]}
                   >
@@ -208,17 +221,20 @@ const RegisterScreen = ({ navigation }) => {
             )}
           </View>
 
-          <TextInputField
-            isDarkMode={isDarkMode}
-            label="Confirm Password"
-            placeholder="Confirm your password"
-            value={formik.values.confirmPassword}
-            onChangeText={formik.handleChange('confirmPassword')}
-            onBlur={formik.handleBlur('confirmPassword')}
-            secureTextEntry
-            editable={!loading}
-            error={formik.touched.confirmPassword ? formik.errors.confirmPassword : ''}
-          />
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+            <TextInputField
+              isDarkMode={isDarkMode}
+              label="Confirm Password"
+              placeholder="Confirm your password"
+              value={formik.values.confirmPassword}
+              onChangeText={formik.handleChange('confirmPassword')}
+              onBlur={formik.handleBlur('confirmPassword')}
+              secureTextEntry
+              editable={!loading}
+              error={formik.touched.confirmPassword ? formik.errors.confirmPassword : ''}
+            />
+          </View>
 
           <Button
             isDarkMode={isDarkMode}
@@ -254,53 +270,98 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+    justifyContent: 'center',
   },
   headerSection: {
     alignItems: 'center',
-    marginBottom: 30,
-    marginTop: 20,
+    marginBottom: 50,
+  },
+  logoContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  logo: {
+    fontSize: 50,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 32,
+    fontWeight: '800',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
+    textAlign: 'center',
+    opacity: 0.8,
   },
   formSection: {
-    marginBottom: 30,
+    marginBottom: 40,
+  },
+  signInTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  inputContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  inputIcon: {
+    position: 'absolute',
+    left: 12,
+    top: 40,
+    zIndex: 1,
   },
   button: {
     marginTop: 20,
+    borderRadius: 8,
+    height: 48,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0E0E0',
-    marginVertical: 20,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    marginVertical: 30,
   },
   footerSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 0,
     justifyContent: 'center',
+    marginTop: 20,
   },
   footerText: {
-    fontSize: 14,
+    fontSize: 16,
+    marginRight: 8,
   },
   strengthContainer: {
-    height: 4,
-    borderRadius: 2,
+    height: 6,
+    borderRadius: 3,
     marginTop: 8,
     marginBottom: 8,
-    borderWidth: 1,
+    backgroundColor: '#e0e0e0',
     overflow: 'hidden',
   },
   strengthBar: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   feedbackContainer: {
     marginBottom: 16,
