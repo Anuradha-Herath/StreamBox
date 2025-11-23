@@ -3,8 +3,12 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  StyleSheet
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import Modal from 'react-native-modal';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorBanner from '../components/ErrorBanner';
@@ -28,6 +32,7 @@ const HomeScreen = ({ navigation }) => {
   const isDarkMode = useSelector(state => state.theme.isDarkMode);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
   const theme = getTheme(isDarkMode);
 
   useEffect(() => {
@@ -102,13 +107,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleMenuPress = () => {
-    Alert.alert('Menu', 'Navigation menu options', [
-      { text: 'Profile', onPress: () => navigation.navigate('ProfileTab') },
-      { text: 'Favorites', onPress: () => navigation.navigate('FavoritesTab') },
-      { text: 'Settings', onPress: () => navigation.navigate('SettingsTab') },
-      { text: 'Logout', onPress: handleLogout },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    setIsMenuVisible(true);
   };
 
   const handleLogout = async () => {
@@ -171,6 +170,61 @@ const HomeScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContent}
         onEndReachedThreshold={0.5}
       />
+
+      <Modal
+        isVisible={isMenuVisible}
+        onBackdropPress={() => setIsMenuVisible(false)}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        backdropOpacity={0.3}
+        style={{ justifyContent: 'flex-end', margin: 0 }}
+      >
+        <View style={[styles.bottomSheet, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.sheetTitle, { color: theme.text }]}>Menu</Text>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              navigation.navigate('ProfileTab');
+            }}
+          >
+            <Text style={{ color: theme.text }}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              navigation.navigate('FavoritesTab');
+            }}
+          >
+            <Text style={{ color: theme.text }}>Favorites</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              navigation.navigate('SettingsTab');
+            }}
+          >
+            <Text style={{ color: theme.text }}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: theme.border }]}
+            onPress={() => {
+              setIsMenuVisible(false);
+              handleLogout();
+            }}
+          >
+            <Text style={{ color: theme.error }}>Logout</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setIsMenuVisible(false)}
+          >
+            <Text style={{ color: theme.textSecondary }}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -181,6 +235,27 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
+  },
+  bottomSheet: {
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '50%',
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  menuItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+  },
+  cancelButton: {
+    marginTop: 15,
+    alignSelf: 'center',
+    paddingVertical: 10,
   },
 });
 
