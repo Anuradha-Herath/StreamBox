@@ -168,6 +168,9 @@ const HomeScreen = ({ navigation }) => {
         renderItem={renderMovieItem}
         keyExtractor={item => item.id.toString()}
         numColumns={2}
+        initialNumToRender={6}
+        maxToRenderPerBatch={4}
+        windowSize={5}
         scrollEnabled={true}
         contentContainerStyle={styles.listContent}
         onEndReachedThreshold={0.5}

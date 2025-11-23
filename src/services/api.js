@@ -323,6 +323,16 @@ export const movieService = {
     }
   },
 
+  // Fetch similar movies
+  getSimilarMovies: async (movieId) => {
+    try {
+      const response = await tmdbClient.get(`/movie/${movieId}/similar`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.status_message || 'Failed to fetch similar movies');
+    }
+  },
+
   // Search movies
   searchMovies: async (query) => {
     try {
