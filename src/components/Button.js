@@ -1,5 +1,4 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { getTheme } from '../styles/theme';
 
 const Button = ({
@@ -63,7 +62,7 @@ const Button = ({
       <Text
         style={[
           styles.text,
-          { color: getTextColor(), ...getSize() },
+          { color: getTextColor() },
           textStyle,
         ]}
       >

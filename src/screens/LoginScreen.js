@@ -1,14 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '../components/Button';
@@ -114,49 +115,56 @@ const LoginScreen = ({ navigation }) => {
         )}
 
         <View style={styles.formSection}>
-          <TextInputField
-            isDarkMode={isDarkMode}
-            label="Username or Email"
-            placeholder="Enter username (e.g., emilys)"
-            value={formik.values.email}
-            onChangeText={formik.handleChange('email')}
-            onBlur={formik.handleBlur('email')}
-            keyboardType="default"
-            autoCapitalize="none"
-            editable={!loading}
-            error={formik.touched.email ? formik.errors.email : ''}
-          />
+          <Text style={[styles.signInTitle, { color: theme.text }]}>Sign In</Text>
 
-          <TextInputField
-            isDarkMode={isDarkMode}
-            label="Password"
-            placeholder="Enter your password"
-            value={formik.values.password}
-            onChangeText={formik.handleChange('password')}
-            onBlur={formik.handleBlur('password')}
-            secureTextEntry
-            editable={!loading}
-            error={formik.touched.password ? formik.errors.password : ''}
-          />
+          <View style={styles.inputContainer}>
+            <Ionicons name="person-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+            <TextInputField
+              isDarkMode={isDarkMode}
+              label="Username or Email"
+              placeholder="Enter username (e.g., emilys)"
+              value={formik.values.email}
+              onChangeText={formik.handleChange('email')}
+              onBlur={formik.handleBlur('email')}
+              keyboardType="default"
+              autoCapitalize="none"
+              editable={!loading}
+              error={formik.touched.email ? formik.errors.email : ''}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color={theme.textSecondary} style={styles.inputIcon} />
+            <TextInputField
+              isDarkMode={isDarkMode}
+              label="Password"
+              placeholder="Enter your password"
+              value={formik.values.password}
+              onChangeText={formik.handleChange('password')}
+              onBlur={formik.handleBlur('password')}
+              secureTextEntry
+              editable={!loading}
+              error={formik.touched.password ? formik.errors.password : ''}
+            />
+          </View>
 
           <Button
             isDarkMode={isDarkMode}
-            title={loading ? 'Logging in...' : 'Login'}
+            title={loading ? 'Signing In...' : 'Sign In'}
             onPress={formik.handleSubmit}
             disabled={loading || !formik.isValid}
             style={styles.button}
           />
 
-          <Button
-            isDarkMode={isDarkMode}
-            title="Forgot Password?"
-            variant="text"
+          <Text
+            style={[styles.forgotPassword, { color: theme.primary }]}
             onPress={() => {
               // TODO: Implement password reset flow
               Alert.alert('Coming Soon', 'Password reset feature coming soon');
             }}
-            style={styles.forgotButton}
-          />
+          >
+            Forgot Password?
+          </Text>
 
           <View style={styles.divider} />
 
@@ -193,71 +201,108 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+    justifyContent: 'center',
   },
   headerSection: {
     alignItems: 'center',
-    marginBottom: 40,
-    marginTop: 20,
+    marginBottom: 50,
   },
   logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   logo: {
-    fontSize: 40,
+    fontSize: 50,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 32,
+    fontWeight: '800',
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
+    textAlign: 'center',
+    opacity: 0.8,
   },
   formSection: {
-    marginBottom: 30,
+    marginBottom: 40,
+  },
+  signInTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  inputContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  inputIcon: {
+    position: 'absolute',
+    left: 12,
+    top: 40,
+    zIndex: 1,
   },
   button: {
     marginTop: 20,
+    borderRadius: 8,
+    height: 48,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  forgotButton: {
-    marginTop: 12,
-    paddingVertical: 8,
+  forgotPassword: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 16,
+    textDecorationLine: 'underline',
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0E0E0',
-    marginVertical: 20,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    marginVertical: 30,
   },
   footerSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 0,
     justifyContent: 'center',
+    marginTop: 20,
   },
   footerText: {
-    fontSize: 14,
+    fontSize: 16,
+    marginRight: 8,
   },
   demoCreds: {
-    marginTop: 20,
-    padding: 12,
-    borderRadius: 8,
+    marginTop: 30,
+    padding: 16,
+    borderRadius: 12,
     borderWidth: 1,
+    opacity: 0.9,
   },
   demoTitle: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 10,
   },
   demoText: {
-    fontSize: 12,
-    marginVertical: 2,
+    fontSize: 13,
+    marginVertical: 3,
   },
 });
 
