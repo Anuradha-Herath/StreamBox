@@ -3,7 +3,6 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
@@ -11,7 +10,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '../components/Button';
 import { logout } from '../redux/authSlice';
-import { toggleTheme } from '../redux/themeSlice';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
 
@@ -38,11 +36,6 @@ const SettingsScreen = ({ navigation }) => {
         style: 'destructive',
       },
     ]);
-  };
-
-  const handleThemeToggle = async () => {
-    dispatch(toggleTheme());
-    await AsyncStorage.setItem(STORAGE_KEYS.THEME_MODE, JSON.stringify(!isDarkMode));
   };
 
   return (
@@ -77,27 +70,6 @@ const SettingsScreen = ({ navigation }) => {
             <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
               {user?.email || 'Not set'}
             </Text>
-          </View>
-        </View>
-
-        {/* Display Section */}
-        <View style={[styles.section, { borderColor: theme.border }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Display</Text>
-          <View
-            style={[
-              styles.settingItem,
-              { backgroundColor: theme.surface, borderColor: theme.border },
-            ]}
-          >
-            <Text style={[styles.settingLabel, { color: theme.text }]}>
-              Dark Mode
-            </Text>
-            <Switch
-              value={isDarkMode}
-              onValueChange={handleThemeToggle}
-              trackColor={{ false: theme.border, true: theme.primary }}
-              thumbColor={isDarkMode ? theme.secondary : theme.text}
-            />
           </View>
         </View>
 

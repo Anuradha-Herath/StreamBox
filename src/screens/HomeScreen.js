@@ -20,7 +20,6 @@ import MovieCard from '../components/MovieCard';
 import { logout } from '../redux/authSlice';
 import { addFavorite, removeFavorite, setFavorites } from '../redux/favoritesSlice';
 import { fetchMoviesAppend, fetchMoviesFailure, fetchMoviesStart, fetchMoviesSuccess } from '../redux/moviesSlice';
-import { toggleTheme } from '../redux/themeSlice';
 import { movieService } from '../services/api';
 import { getTheme } from '../styles/theme';
 import { STORAGE_KEYS } from '../utils/constants';
@@ -131,11 +130,6 @@ const HomeScreen = ({ navigation }) => {
     } catch (error) {
       Alert.alert('Error', 'Failed to logout');
     }
-  };
-
-  const handleThemeToggle = async () => {
-    dispatch(toggleTheme());
-    await AsyncStorage.setItem(STORAGE_KEYS.THEME_MODE, JSON.stringify(!isDarkMode));
   };
 
   const renderMovieItem = useCallback(({ item }) => (
