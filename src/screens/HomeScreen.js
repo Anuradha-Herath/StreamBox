@@ -149,16 +149,13 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header Section */}
-      <View style={styles.header}>
-        {/* Background Gradient Accent */}
-        <View style={styles.headerGradient} />
-
+      <View style={[styles.header, { backgroundColor: theme.background }]}>
         <View style={styles.headerContent}>
           {/* Top Row - Greeting & Actions */}
           <View style={styles.headerTopRow}>
             <View style={styles.profileSection}>
               <View style={styles.avatarContainer}>
-                <View style={[styles.avatar, { backgroundColor: theme.primary }]}>
+                <View style={[styles.avatar, { backgroundColor: theme.primary, borderColor: `${theme.primary}50` }]}>
                   <Text style={styles.avatarText}>
                     {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                   </Text>
@@ -320,6 +317,13 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
+  headerGradientBg: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 32,
+    position: 'relative',
+    overflow: 'hidden',
+  },
   headerGradient: {
     position: 'absolute',
     top: 0,
@@ -351,14 +355,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(147, 51, 234, 0.5)',
   },
   avatarText: {
     color: '#FFF',
     fontSize: 20,
     fontWeight: '700',
   },
-  greetingSection: {},
+  greetingSection: {
+    paddingRight: 12,
+  },
   greetingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -367,10 +372,11 @@ const styles = StyleSheet.create({
   greetingText: {
     fontSize: 14,
     marginLeft: 6,
+    fontWeight: '500',
   },
   userName: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
   },
   actionButtons: {
     flexDirection: 'row',
@@ -385,14 +391,16 @@ const styles = StyleSheet.create({
   },
   notificationBadge: {
     position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#9333EA',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FF6B6B',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
   },
   badgeText: {
     color: '#FFF',
@@ -401,6 +409,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     position: 'relative',
+    marginTop: 12,
   },
   searchIconContainer: {
     position: 'absolute',
@@ -413,10 +422,11 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingLeft: 52,
     paddingRight: 16,
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 16,
     borderWidth: 1,
     fontSize: 16,
+    fontWeight: '500',
   },
   mainContent: {
     flex: 1,
